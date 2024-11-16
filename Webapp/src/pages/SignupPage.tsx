@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
@@ -6,6 +6,7 @@ import { Button } from '@mui/material';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { useNavigate } from 'react-router-dom';
 import Link from '@mui/material/Link';
+import { useSeriesFormatter } from '@mui/x-charts/internals';
 
 const FullScreenImage: React.FC = () => {
     return (
@@ -40,11 +41,99 @@ const FullScreenImage: React.FC = () => {
     );
 };
 
+interface ISendVerificationResponse {
+    emailStatus: boolean;
+    code: string;
+}
 
+const sendVerificationCode = async (userEmail) => {
+    const url = 'http://localhost:8000/api/sendVerificationCode'
+
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            email: userEmail
+        })}
+    )
+
+    if (!response.ok) {
+        console.log('an error in sending verificaiton code')
+    }
+    
+    const responseData = await response.json()
+
+    return responseData.code
+}
+
+const verifyCode = async (userEmail, code, haveResult, setHaveResult, setVerifyResult) => {
+    const url = 'http://localhost:8000/api/verifyCode'
+
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            email: userEmail,
+            code: code
+        })}
+    )
+
+    if (!response.ok) {
+        console.log('an error in sending verificaiton code')
+    }
+    
+    const responseData = await response.json()
+
+    setVerifyResult(responseData.success)
+    setHaveResult(haveResult + 1)
+}
 
 const SignupPage = () => {
     const navigate = useNavigate();
-    
+
+    const [email, setEmail] = useState('')
+    const [veriCode, setVeriCode] = useState('')
+    const [shouldVerify, setShouldVerify] = useState(false)
+    const verified = useRef(false)
+
+    const [haveResult, setHaveResult] = useState(0)
+    const [verifyResult, setVerifyResult] = useState(false)
+
+    const handleNext = () => {
+        if (!shouldVerify)
+        {
+            // send verification code
+            sendVerificationCode(email)
+            setShouldVerify(true)
+        }
+        else
+        {
+            // check if verification code passed
+            verifyCode(email, veriCode, haveResult, setHaveResult, setVerifyResult)
+        }
+    }
+
+    useEffect(() => {
+        console.log(verifyResult)
+        if (verifyResult === true) {
+            // if passed, proceed to user registration page
+            navigate('/createuser')
+        }
+        else {
+            // clear verification code section and prompt user to enter again
+            setVeriCode('')
+
+            if (haveResult !== 0) {
+                alert('wrong verification code')
+            }
+        }
+        
+    }, [haveResult])
+
     const handleClick = () => {
         navigate('/');
     };
@@ -69,13 +158,29 @@ const SignupPage = () => {
             }}>
 
                 <Typography variant='h3' fontWeight={1000} sx={{ mt: 7, mb: 3 }}>Sign up</Typography>
-                <TextField
-                    required
-                    id="outlined-required"
-                    label="Email"
-                    sx={{ height: 100, width: 250 }}
-                />
-                
+
+                {
+                    shouldVerify ? (
+                        <TextField
+                            required
+                            id="outlined-required"
+                            label="VerificationCode"
+                            value={veriCode}
+                            onChange={(e) => setVeriCode(e.target.value)}
+                            sx={{ height: 100, width: 250 }}
+                        />
+                    ) : (
+                        <TextField
+                            required
+                            id="outlined-required"
+                            label="Email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            sx={{ height: 100, width: 250 }}
+                        />
+                    )
+                }
+
                 <Button
                     variant="contained"
                     endIcon={<NavigateNextIcon />}
@@ -85,11 +190,22 @@ const SignupPage = () => {
                         backgroundColor: 'rgba(150, 0, 150,0.1)',
                         width: 200
                     }}
-                    onClick={() => { navigate('/createuser') }}
+                    onClick={handleNext}
                 >
-                    Sign up
+                    Next
                 </Button>
-                <Link href="#" underline="hover" variant='caption' onClick={handleClick} color='silver'>Click here to login</Link>
+                <Link
+                    href="#"
+                    underline="hover"
+                    variant='caption'
+                    onClick={handleClick}
+                    color='silver'
+                    sx={{
+                        mt: 1
+                    }}
+                >
+                    Click here to login
+                </Link>
 
             </Box>
         </Box>

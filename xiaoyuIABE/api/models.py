@@ -18,3 +18,8 @@ class User(models.Model):
     email = models.EmailField(max_length=150)
     password = models.CharField(max_length=100)
     createdTime = models.DateTimeField()
+
+class EmailUserVerification(models.Model):
+    email = models.CharField(max_length=150)
+    verificationCode = models.CharField(max_length=6)
+    createdTime = models.DateTimeField()
