@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useContext } from 'react';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
@@ -7,6 +7,8 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { useNavigate } from 'react-router-dom';
 import Link from '@mui/material/Link';
 import { useSeriesFormatter } from '@mui/x-charts/internals';
+
+import { AppContext } from '../main';
 
 const FullScreenImage: React.FC = () => {
     return (
@@ -93,7 +95,7 @@ const verifyCode = async (userEmail, code, haveResult, setHaveResult, setVerifyr
 const SignupPage = () => {
     const navigate = useNavigate();
 
-    const [email, setEmail] = useState('')
+    const { email, setEmail } = useContext(AppContext)
     const [veriCode, setVeriCode] = useState('')
     const [shouldVerify, setShouldVerify] = useState('')
     const verified = useRef(false)

@@ -18,6 +18,11 @@ class User(models.Model):
     email = models.EmailField(max_length=150)
     password = models.CharField(max_length=100)
     createdTime = models.DateTimeField()
+    
+    # define a string converter for this user
+    # to tell the system what to do when printing this user as a string
+    def __str__(self):
+        return self.username
 
 class EmailUserVerification(models.Model):
     email = models.CharField(max_length=150)
