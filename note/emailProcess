@@ -1,0 +1,32 @@
+@startuml emailProcess
+
+participant User as U 
+participant Webapp as W 
+participant Server as S 
+participant GmailServer as G 
+
+U -> W: enter email and press next
+W -> S: request for verification code service
+S -> S: generate a verification code
+S -> S: save verification code into server 
+S -> G: send email
+G -> U: send email 
+U -> U: check email for verification code
+U -> W: enter verification code 
+W -> S: request to verify code
+S -> S: retrive the previously sent verification code
+S -> S: matching
+
+alt Matched
+S -> W: ok
+else Not matched
+S -> W: not ok
+end
+
+alt Verification code OK 
+U -> W: proceed to registration
+else not ok
+U -> W: resend verification code
+end
+
+@enduml

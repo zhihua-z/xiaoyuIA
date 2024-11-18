@@ -66,7 +66,7 @@ const LoginPage = () => {
     };
     return (
         <Box width={'100%'} height={'100%'} sx={{ margin: 0, padding: 0 }}>
-            <FullScreenImage/>
+            <FullScreenImage />
             <Box sx={{
                 position: 'relative',
                 top: 135,
@@ -125,7 +125,15 @@ const LoginPage = () => {
                 >
                     Login
                 </Button>
-                <Link href="#" underline="hover" variant='caption' onClick={handleClick} color='silver'>Click here to sign up</Link>
+                <Link href="#"
+                    underline="hover"
+                    variant='caption'
+                    onClick={handleClick}
+                    color='silver'
+                    sx={{mt:1}}
+                >
+                    Click here to sign up
+                </Link>
 
             </Box>
         </Box >
