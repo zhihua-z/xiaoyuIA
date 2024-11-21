@@ -139,7 +139,7 @@ const MyDiscovery = () => {
 const DiscoveryPage = () => {
     return (
         <Box sx={{ flexGrow: 1 }}>
-            <MyAppbar />
+            <MyAppbar currentTab={"discovery"}/>
             <MyDiscovery />
         </Box>
     )

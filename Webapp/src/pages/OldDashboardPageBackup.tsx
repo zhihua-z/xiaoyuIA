@@ -15,7 +15,7 @@ import FastfoodIcon from '@mui/icons-material/Fastfood';
 import LaptopMacIcon from '@mui/icons-material/LaptopMac';
 import HotelIcon from '@mui/icons-material/Hotel';
 import RepeatIcon from '@mui/icons-material/Repeat';
-import { Paper, TextField } from '@mui/material';
+import { TextField } from '@mui/material';
 import Switch from '@mui/material/Switch';
 import dayjs, { Dayjs } from 'dayjs';
 import Badge from '@mui/material/Badge';
@@ -24,9 +24,6 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { PickersDay, PickersDayProps } from '@mui/x-date-pickers/PickersDay';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { DayCalendarSkeleton } from '@mui/x-date-pickers/DayCalendarSkeleton';
-import { Gauge, gaugeClasses } from '@mui/x-charts/Gauge';
-
-import FullScreenImage from '../components/FullScreenImage';
 
 function getRandomNumber(min: number, max: number) {
     return Math.round(Math.random() * (max - min) + min);
@@ -66,69 +63,6 @@ function ServerDay(props: PickersDayProps<Dayjs> & { highlightedDays?: number[] 
         </Badge>
     );
 }
-
-
-const DataCard = ({ color, children = null }) => {
-    return (
-        <Box
-            sx={{
-                width: '25%',
-                height: 200,
-                margin: 'auto',
-                borderRadius: 10
-            }}
-        >
-            <Box sx={{
-                height: '100%',
-                width: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center'
-            }}>
-                <Box
-                    sx={{
-                        background: color,
-                        height: '90%',
-                        width: '90%',
-                        margin: 'auto',
-                        borderRadius: 5
-                    }}
-                >
-                    {children}
-                </Box>
-            </Box>
-        </Box>
-    )
-}
-
-
-const MyGauge = () => {
-    return (
-        <Gauge
-            cornerRadius="50%"
-            value={60}
-            startAngle={-90}
-            endAngle={90}
-            text={""}
-            sx={(theme) => ({
-                width: '70%',
-                height: '70%',
-                [`& .${gaugeClasses.valueText}`]: {
-                    fontSize: 40,
-                },
-                [`& .${gaugeClasses.valueArc}`]: {
-                    fill: '#FFFFFF',
-                },
-                [`& .${gaugeClasses.referenceArc}`]: {
-                    fill: theme.palette.text.disabled,
-                },
-                ml: 'auto',
-                mr: 'auto',
-            })}
-        />
-    )
-}
-
 
 export const DashDetail = () => {
     const [seriesNb, setSeriesNb] = useState(2);
@@ -342,7 +276,7 @@ export const DashDetail = () => {
                         }}
                     />
                 </LocalizationProvider>
-
+                
             </Box>
         </Box >
     )
@@ -351,75 +285,13 @@ export const DashDetail = () => {
 }
 
 
-const DashoboardPage = () => {
+const OldDashoboardPage = () => {
     return (
-        <>
-            <FullScreenImage />
-            <Box sx={{
-                flexGrow: 1,
-                width: '100vw',
-                height: '100vh',
-                backdropFilter: 'blur(30px)',
-                backgroundColor: "rgba(255, 255, 255, 0.1)",
-            }}>
-                <MyAppbar currentTab={"dashboard"} />
-
-                {/* graphs */}
-                <Box
-                    sx={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        width: '70%',
-                        ml: 'auto',
-                        mr: 'auto',
-                        mt: 3,
-                    }}
-                >
-                    <DataCard color={'#30b6b5'}>
-
-                    </DataCard>
-                    <DataCard color={'#fe7445'}>
-
-                    </DataCard>
-                    <DataCard color={'#fa5b7f'}>
-                        <MyGauge />
-
-                    </DataCard>
-                    <DataCard color={'#8675fe'}>
-
-                    </DataCard>
-                </Box>
-
-
-                {/* stats */}
-                <Box
-                    sx={{
-                        width: '70%',
-                        height: 330,
-                        margin: 'auto',
-                        mt: 3,
-                        backgroundColor: 'rgba(0, 0, 0, 0.2)'
-                    }}
-                >
-
-                </Box>
-
-                {/* recommendation */}
-                <Box
-                    sx={{
-                        width: '70%',
-                        height: 200,
-                        margin: 'auto',
-                        mt: 3,
-                        backgroundColor: 'rgba(0, 0, 0, 0.2)'
-                    }}
-                >
-
-                </Box>
-
-            </Box>
-        </>
+        <Box sx={{ flexGrow: 1, backgroundColor: '#111111'}}>
+            <MyAppbar />
+            <DashDetail />
+        </Box>
     )
 
 }
-export default DashoboardPage;
+export default OldDashoboardPage;

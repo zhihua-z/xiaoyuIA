@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 
 import DiscoveryPage from './pages/DiscoveryPage'
-import HelloPage from './pages/HelloPage'
+import TaskPage from './pages/TaskPage'
 import PostPage from './pages/postPage'
 import DashboardPage from './pages/DashboardPage'
 import SettingPage from './pages/SettingPage'
@@ -27,7 +27,7 @@ const router = createBrowserRouter([
     },
     {
         path: "/task",
-        element: <HelloPage />
+        element: <TaskPage />
     },
     {
         path: "/detail",
