@@ -79,10 +79,11 @@ def register(request):
         data = json.loads(request.body.decode('utf-8'))
         
         # check if user already exists:
-        exists = User.objects.get(username=data['username'])
-        if exists is not None:
-            response['status'] = 'user exists'
-        else:
+        try:
+            exists = User.objects.get(username=data['username'])
+            if exists is not None:
+                response['status'] = 'user exists'
+        except User.DoesNotExist:
             u = User()
             u.username = data['username']
             u.password = data['password']
