@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import Typography from '@mui/material/Typography';
 import { Button, InputAdornment } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -9,6 +9,8 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import IconButton from '@mui/material/IconButton';
 import CountrySelect from '../components/CountryList';
 import Link from '@mui/material/Link';
+
+import { AppContext } from '../main';
 
 const FullScreenImage: React.FC = () => {
     return (
@@ -44,7 +46,7 @@ const FullScreenImage: React.FC = () => {
 };
 
 
-const internetRegisterUser = async (username: string, password: string) => {
+const internetRegisterUser = async (username: string, password: string, email: string, navigate) => {
     const url = 'http://localhost:8000/api/register'
 
     const response = await fetch(url, {
@@ -54,7 +56,8 @@ const internetRegisterUser = async (username: string, password: string) => {
         },
         body: JSON.stringify({
             username: username,
-            password: password
+            password: password,
+            email: email
         })
     })
 
@@ -62,11 +65,20 @@ const internetRegisterUser = async (username: string, password: string) => {
         throw "error"
     }
 
+    const data = await response.json()
+    if (data.status == 'success') {
+        navigate('/dashboard')
+    } else {
+        alert(data.status)
+    }
+
     console.log(response.json())
 }
 
 
 export const CollectInfo = () => {
+
+    const { email, setEmail } = useContext(AppContext)
 
     const [username, setUsername] = useState('')
     const [country, setCountry] = useState('')
@@ -107,10 +119,9 @@ export const CollectInfo = () => {
         }
         else {
             setPassword2Error(false)
-            navigate('/dashboard');
         }
 
-        internetRegisterUser(username, password)
+        internetRegisterUser(username, password, email, navigate)
 
     };
 

@@ -126,9 +126,8 @@ export const MyHello = () => {
 const TaskPage = () => {
     return (
         <Box sx={{ flexGrow: 1 }}>
-            <MyAppbar />
+            <MyAppbar currentTab={"task"}/>
             <MyHello />
-            <MyNavigation />
         </Box>
     )
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
@@ -11,44 +11,46 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import IconButton from '@mui/material/IconButton';
 
 
-
-const FullScreenImage: React.FC = () => {
-    return (
-        <>
-            {/* Reset body's margin and padding to eliminate unwanted space */}
-            <style>
-                {`
-            body, html {
-              margin: 0;
-              padding: 0;
-              height: 100%;
-              width: 100%;
-              overflow: hidden;  /* Optional: Prevents scrolling */
-            }
-          `}
-            </style>
-
-            <Box
-                component="img"
-                src="https://images8.alphacoders.com/105/1051723.jpg"  // Replace with your image URL or path
-                sx={{
-                    position: 'fixed',    // Fix the image in place so it doesn't scroll
-                    top: 0,               // Align to the top of the viewport
-                    left: 0,              // Align to the left of the viewport
-                    width: '100vw',       // Full width of the viewport
-                    height: '100vh',      // Full height of the viewport
-                    objectFit: 'cover',   // Ensure the image covers the entire area without distortion
-                    zIndex: -1            // Place the image behind other content
-                }}
-            />
-        </>
-    );
-};
+import { AppContext } from '../main';
+import FullScreenImage from '../components/FullScreenImage';
 
 
+const login = async(username: string, password: string, navigate: any) => {
+    const url = 'http://localhost:8000/api/login'
+
+    const inputData = {
+        username: username,
+        password: password
+    }
+
+    console.log(inputData)
+
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(inputData)
+    })
+
+    if (!response.ok) {
+        throw 'error';
+    }
+
+    const data = await response.json()
+
+    if (data.status == 'success') {
+        navigate('/dashboard')
+    } else {
+        alert(data.status)
+    }
+}
 
 const LoginPage = () => {
     const navigate = useNavigate();
+
+    const { username, setUsername } = useContext(AppContext)
+    const [password, setPassword] = useState('')
 
     const handleClick = () => {
         navigate('/signup');
@@ -64,6 +66,11 @@ const LoginPage = () => {
     const handleMouseUpPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
     };
+
+    const handleLogin = () => {
+        login(username, password, navigate)
+    }
+
     return (
         <Box width={'100%'} height={'100%'} sx={{ margin: 0, padding: 0 }}>
             <FullScreenImage />
@@ -89,12 +96,16 @@ const LoginPage = () => {
                     required
                     id="outlined-required"
                     label="Username"
+                    value={username}
+                    onChange={e => setUsername(e.target.value)}
                     sx={{ width: 250, height: 100, borderRadius: 6 }}
                 />
                 <TextField
                     required
                     id="outlined-password-input"
                     label="Password"
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
                     type={showPassword ? 'text' : 'password'}
                     sx={{ height: 100 }}
                     InputProps={{
@@ -121,7 +132,7 @@ const LoginPage = () => {
                         backgroundColor: 'rgba(150, 0, 150,0.1)',
                         width: 200
                     }}
-                    onClick={() => { navigate('/dashboard') }}
+                    onClick={handleLogin}
                 >
                     Login
                 </Button>

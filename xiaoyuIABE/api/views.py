@@ -36,35 +36,69 @@ def getPosts(request):
     return HttpResponse(response)
 
 @csrf_exempt
-def login(reqeust):
+def login(request):
+    response = {}
     
-    # foundUser = User.objects.get(username = username)
+    if request.method == 'POST':
+        print(request.body)
+        # ╭──────────────────────────────────────────────────────────────╮
+        # │                     Check for form data                      │
+        # ╰──────────────────────────────────────────────────────────────╯
+        data = json.loads(request.body.decode('utf-8'))
+        username = data['username']
+        password = data['password']
+        
+        
+        # ╭──────────────────────────────────────────────────────────────╮
+        # │                        Check db logic                        │
+        # ╰──────────────────────────────────────────────────────────────╯
+        # check if user already exists:
+        try:
+            user = User.objects.get(username=username)
+            
+            if user.password == password:
+                response['status'] = 'success'
+            else:
+                response['status'] = 'wrong password'
+        except User.DoesNotExist:
+            response['status'] = 'user not exists'
+            
+    else:
+        response['status'] = 'method not allowed'
     
-    # if foundUser is not None:
-    #     ///login successful
+    # force our return type to be application/json
+    response = json.dumps(response)
     
-    return HttpResponse('')
+    return HttpResponse(response)
 
 @csrf_exempt
 def register(request):
+    response = {}
     
     if request.method == 'POST':
         data = json.loads(request.body.decode('utf-8'))
         
-        print(data['username'])
-        print(data['password'])
-        print(data['email'])
-        
-        u = User()
-        u.username = data['username']
-        u.password = data['password']
-        u.email = data['email']
-        u.createdTime = timezone.now()
-        
-        u.save()
-        
+        # check if user already exists:
+        try:
+            exists = User.objects.get(username=data['username'])
+            if exists is not None:
+                response['status'] = 'user exists'
+        except User.DoesNotExist:
+            u = User()
+            u.username = data['username']
+            u.password = data['password']
+            u.email = data['email']
+            u.createdTime = timezone.now()
+            u.save()
+            
+            response['status'] = 'success'
+    else:
+        response['status'] = 'method not allowed'
     
-    return HttpResponse('')
+    # force our return type to be application/json
+    response = json.dumps(response)
+    
+    return HttpResponse(response)
 
 @csrf_exempt
 def sendVerificationCode(request):
