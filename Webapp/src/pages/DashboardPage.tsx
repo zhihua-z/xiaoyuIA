@@ -132,7 +132,8 @@ const GraphCard = ({ color, children = null }) => {
                         height: '90%',
                         width: '90%',
                         margin: 'auto',
-                        borderRadius: 5
+                        borderRadius: 5,
+                        backgroundColor: 'rgba(0, 0, 0, 0.1)'
                     }}
                 >
                     {children}
@@ -232,237 +233,10 @@ const BasicLineChart = () => {
 }
 
 
-export const DashDetail = () => {
+const DashboardPage = () => {
     const [seriesNb, setSeriesNb] = useState(2);
-    const [itemNb, setItemNb] = useState(1);
     const [suggestion, setSuggestion] = useState('eat more apple and orange')
-    const handleItemNbChange = (event: Event, newValue: number | number[]) => {
-        if (typeof newValue !== 'number') {
-            return;
-        }
-        setItemNb(newValue);
-    };
-    const handleSeriesNbChange = (event: Event, newValue: number | number[]) => {
-        if (typeof newValue !== 'number') {
-            return;
-        }
-        setSeriesNb(newValue);
-    };
 
-    const requestAbortController = useRef<AbortController | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
-    const [highlightedDays, setHighlightedDays] = useState([1, 2, 15]);
-    const fetchHighlightedDays = (date: Dayjs) => {
-        const controller = new AbortController();
-        fakeFetch(date, {
-            signal: controller.signal,
-        })
-            .then(({ daysToHighlight }) => {
-                setHighlightedDays(daysToHighlight);
-                setIsLoading(false);
-            })
-            .catch((error) => {
-                // ignore the error if it's caused by `controller.abort`
-                if (error.name !== 'AbortError') {
-                    throw error;
-                }
-            });
-
-        requestAbortController.current = controller;
-    };
-
-    useEffect(() => {
-        fetchHighlightedDays(initialValue);
-        // abort request on unmount
-        return () => requestAbortController.current?.abort();
-    }, []);
-
-    const handleMonthChange = (date: Dayjs) => {
-        if (requestAbortController.current) {
-            // make sure that you are aborting useless requests
-            // because it is possible to switch between months pretty quickly
-            requestAbortController.current.abort();
-        }
-
-        setIsLoading(true);
-        setHighlightedDays([]);
-        fetchHighlightedDays(date);
-    };
-
-
-
-    const highlightScope = {
-        highlight: 'series',
-        fade: 'global',
-    } as const;
-
-    const series = [
-        {
-            label: 'This Week',
-            data: [
-                3, 10, 2, 7, 15, 10, 4
-            ],
-
-        },
-        {
-            label: 'Last Week',
-            data: [
-                2, 4, 13, 11, 8, 1, 5
-            ],
-
-        },
-
-
-    ].map((s) => ({ ...s, highlightScope }));
-
-    return (
-        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'row', width: '100%', justifyContent: 'space-evenly' }}>
-            <Box sx={{ flexDirection: 'column', width: '49%' }}>
-                <Typography variant='h5'>suggestions</Typography>
-                <TextField sx={{ width: '100%' }} multiline rows={4} disabled value={suggestion} />
-                <Box>
-                    <Typography variant='h4'>Workout hour</Typography>
-                    <BarChart
-                        xAxis={[{ scaleType: 'band', data: ['day1', 'day2', 'day3', 'day4', 'day5', 'day6', 'day7'] }]}
-                        height={300}
-                        series={series
-                            .slice(0, seriesNb)
-                            .map((s) => ({ ...s, data: s.data.slice(0, itemNb) }))}
-
-                    />
-                    <Typography id="input-item-number" gutterBottom>
-                        Number of Week Days
-                    </Typography>
-                    <Slider
-                        value={itemNb}
-                        onChange={handleItemNbChange}
-                        valueLabelDisplay="auto"
-                        min={1}
-                        max={7}
-                        aria-labelledby="input-item-number"
-                    />
-                    <Typography id="input-series-number" gutterBottom>
-                        Show Last Week
-                    </Typography>
-                    <Switch defaultChecked onChange={() => setSeriesNb(3 - seriesNb)} />
-                </Box>
-            </Box>
-            <Box sx={{ flexDirection: 'column', width: '49%' }}>
-                <Timeline position="alternate">
-                    <TimelineItem>
-                        <TimelineOppositeContent
-                            sx={{ m: 'auto 0' }}
-                            align="right"
-                            variant="body2"
-                            color="text.secondary"
-                        >
-                            9:30 am
-                        </TimelineOppositeContent>
-                        <TimelineSeparator>
-                            <TimelineConnector />
-                            <TimelineDot>
-                                <FastfoodIcon />
-                            </TimelineDot>
-                            <TimelineConnector />
-                        </TimelineSeparator>
-                        <TimelineContent sx={{ py: '12px', px: 2 }}>
-                            <Typography variant="h6" component="span">
-                                Eat
-                            </Typography>
-                        </TimelineContent>
-                    </TimelineItem>
-                    <TimelineItem>
-                        <TimelineOppositeContent
-                            sx={{ m: 'auto 0' }}
-                            variant="body2"
-                            color="text.secondary"
-                        >
-                            10:00 am
-                        </TimelineOppositeContent>
-                        <TimelineSeparator>
-                            <TimelineConnector />
-                            <TimelineDot color="primary">
-                                <LaptopMacIcon />
-                            </TimelineDot>
-                            <TimelineConnector />
-                        </TimelineSeparator>
-                        <TimelineContent sx={{ py: '12px', px: 2 }}>
-                            <Typography variant="h6" component="span">
-                                Code
-                            </Typography>
-                        </TimelineContent>
-                    </TimelineItem>
-                    <TimelineItem>
-                        <TimelineOppositeContent
-                            sx={{ m: 'auto 0' }}
-                            variant="body2"
-                            color="text.secondary"
-                        >
-                            10:00 pm
-                        </TimelineOppositeContent>
-                        <TimelineSeparator>
-                            <TimelineConnector />
-                            <TimelineDot color="primary" variant="outlined">
-                                <HotelIcon />
-                            </TimelineDot>
-                            <TimelineConnector sx={{ bgcolor: 'secondary.main' }} />
-                        </TimelineSeparator>
-                        <TimelineContent sx={{ py: '12px', px: 2 }}>
-                            <Typography variant="h6" component="span">
-                                Sleep
-                            </Typography>
-                        </TimelineContent>
-                    </TimelineItem>
-                    <TimelineItem>
-                        <TimelineSeparator>
-                            <TimelineConnector sx={{ bgcolor: 'secondary.main' }} />
-                            <TimelineDot color="secondary">
-                                <RepeatIcon />
-                            </TimelineDot>
-                            <TimelineConnector />
-                        </TimelineSeparator>
-                        <TimelineContent sx={{ py: '12px', px: 2 }}>
-                            <Typography variant="h6" component="span">
-                                Repeat
-                            </Typography>
-                        </TimelineContent>
-                    </TimelineItem>
-                </Timeline>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DateCalendar
-                        defaultValue={initialValue}
-                        loading={isLoading}
-                        onMonthChange={handleMonthChange}
-                        renderLoading={() => <DayCalendarSkeleton />}
-                        slots={{
-                            day: ServerDay,
-                        }}
-                        slotProps={{
-                            day: {
-                                highlightedDays,
-                            } as any,
-                        }}
-                    />
-                </LocalizationProvider>
-
-            </Box>
-        </Box >
-    )
-
-
-}
-
-
-const DashoboardPage = () => {
-    const [seriesNb, setSeriesNb] = useState(2);
-    const [itemNb, setItemNb] = useState(1);
-    const [suggestion, setSuggestion] = useState('eat more apple and orange')
-    const handleItemNbChange = (event: Event, newValue: number | number[]) => {
-        if (typeof newValue !== 'number') {
-            return;
-        }
-        setItemNb(newValue);
-    };
     const handleSeriesNbChange = (event: Event, newValue: number | number[]) => {
         if (typeof newValue !== 'number') {
             return;
@@ -573,37 +347,26 @@ const DashoboardPage = () => {
                     }}
                 >
                     <GraphCard color={'#FFFFFF'}>
-                        <Typography variant='h6' sx={{ ml: 2 }}>Workout hour</Typography>
+                        <Typography fontWeight={600} fontSize={24} sx={{ ml: 2}}>Workout hour</Typography>
                         <BarChart
                             xAxis={[{ scaleType: 'band', data: ['day1', 'day2', 'day3', 'day4', 'day5', 'day6', 'day7'] }]}
                             height={150}
                             series={series
                                 .slice(0, seriesNb)
-                                .map((s) => ({ ...s, data: s.data.slice(0, itemNb) }))}
+                                .map((s) => ({ ...s, data: s.data.slice(0, 7) }))}
 
                         />
                         <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-                            <Typography id="input-item-number" gutterBottom sx={{ ml: 2, mr: 2 }} >
-                                Week Day
-                            </Typography>
-                            <Slider
-                                value={itemNb}
-                                onChange={handleItemNbChange}
-                                valueLabelDisplay="auto"
-                                min={1}
-                                max={7}
-                                aria-labelledby="input-item-number"
-                            />
                             <Typography id="input-series-number" gutterBottom sx={{ ml: 2 }} >
-                                Last Week
+                                Show Last Week
                             </Typography>
-                            <Switch defaultChecked onChange={() => setSeriesNb(3 - seriesNb)} />
+                            <Switch defaultChecked size='small' onChange={() => setSeriesNb(3 - seriesNb)} />
                         </Box>
 
 
                     </GraphCard>
                     <GraphCard color={'#FFFFFF'}>
-                        <Typography variant='h6' sx={{ml: 2}}>Progress</Typography>
+                    <Typography fontWeight={600} fontSize={24} sx={{ ml: 2}}>Progress</Typography>
                         <Box sx={{ display: 'flex', ml: 5 }}>
                             <PieChart
                                 series={[
@@ -648,4 +411,4 @@ const DashoboardPage = () => {
     )
 
 }
-export default DashoboardPage;
+export default DashboardPage;

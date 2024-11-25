@@ -6,15 +6,8 @@ class Post(models.Model):
     image = models.CharField(max_length=500) 
     author = models.CharField(max_length= 50)
     createdTime = models.DateTimeField()
-    
-    def __str__(self):
-        return self.title
-
-class VideoPost(models.Model):
-    title = models.CharField(max_length=100) 
-    videoURL = models.CharField(max_length=500) 
-    author = models.CharField(max_length= 50)
-    createdTime = models.DateTimeField()
+    postType = models.CharField(max_length=20)
+    likedCount = models.BigIntegerField()
     
     def __str__(self):
         return self.title
@@ -37,3 +30,8 @@ class EmailUserVerification(models.Model):
     
     def __str__(self):
         return self.email + ' ' + self.verificationCode
+
+class PostUserLike(models.Model):
+    post = Post()
+    user = User()
+    createdTime = models.DateTimeField()
