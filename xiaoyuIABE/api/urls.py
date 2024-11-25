@@ -10,6 +10,5 @@ urlpatterns = [
     path("register", views.register, name='register'),
     path("sendVerificationCode", views.sendVerificationCode, name='sendVerification'),
     path("verifyCode", views.verifyCode, name='verifyCode'),
-
-    
+    path("like", view=views.like, name="like")
 ]

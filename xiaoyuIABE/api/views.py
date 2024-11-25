@@ -5,30 +5,36 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 # Create your views here.
 
-from .models import Post, VideoPost, User, EmailUserVerification
+from .models import Post, User, EmailUserVerification, PostUserLike
 from .emailbot import sendVerification
 
 
 def index(request):
     return HttpResponse("hi")
 
+def sortByTime(item):
+    return item['postTime']
+
 def getPosts(request):
     posts = Post.objects.all()
 
     post_list = []
-
+    response = {}
 
     for post in posts:
         post_data = {
+            "id": post.id,
             "title" : post.title,
             "url" : post.image,
             "author" : post.author,
-            "postTime" : post.createdTime.strftime('%Y-%m-%d %H:%M')
-            
+            "postTime" : post.createdTime.strftime('%Y-%m-%d %H:%M'),
+            "type": post.postType
         }
         post_list.append(post_data)
 
-    response = {}
+    
+    
+    post_list.sort(key=sortByTime, reverse=True)
 
     response['post'] = post_list
     response = json.dumps(response)
@@ -145,5 +151,57 @@ def verifyCode(request):
             response['success'] = True
         else:
             response['success'] = False
+
+    return HttpResponse(json.dumps(response))
+
+@csrf_exempt
+def like(request):
+    response = {}
+
+    if request.method == 'POST':
+        data = json.loads(request.body.decode('utf-8'))
+
+        response['status'] = None
+
+        pid = data['postId']
+        un = data['username']
+        postType = data['type']
+        
+        # 0. get user
+        user: User = None
+        post: Post = None
+        
+        # check user
+        try:
+            user = User.objects.get(username=un)
+        except User.DoesNotExist:
+            response['status'] = 'User does not exists'
+        
+        # check post
+        try:
+            post = Post.objects.get(id=pid)
+        except Post.DoesNotExist:
+            response['status'] = 'Post does not exists'
+
+        if response['status'] is None:
+            # 1. check user never liked this post before
+            try:
+                exists = PostUserLike.objects.get(user=user, post=post)
+                if exists is not None:
+                    response['status'] = 'Already liked'
+            except PostUserLike.DoesNotExist:
+                # 2. add a like to the post
+                post.likedCount += 1
+                
+                # 3. add a like record
+                record = PostUserLike()
+                record.user = user
+                record.post = post
+                record.createdTime = timezone.now()
+                
+                post.save()
+                record.save()
+                
+                response['status'] = 'success'
 
     return HttpResponse(json.dumps(response))
