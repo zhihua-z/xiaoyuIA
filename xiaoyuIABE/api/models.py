@@ -32,6 +32,9 @@ class EmailUserVerification(models.Model):
         return self.email + ' ' + self.verificationCode
 
 class PostUserLike(models.Model):
-    post = Post()
-    user = User()
+    post = models.ForeignKey('Post', on_delete=models.CASCADE)  
+    user = models.ForeignKey('User', on_delete=models.CASCADE)
     createdTime = models.DateTimeField()
+    
+    class Meta:
+        unique_together = (('post', 'user'),)

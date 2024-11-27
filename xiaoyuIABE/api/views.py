@@ -28,7 +28,8 @@ def getPosts(request):
             "url" : post.image,
             "author" : post.author,
             "postTime" : post.createdTime.strftime('%Y-%m-%d %H:%M'),
-            "type": post.postType
+            "type": post.postType,
+            "likedCount": post.likedCount
         }
         post_list.append(post_data)
 
@@ -38,6 +39,8 @@ def getPosts(request):
 
     response['post'] = post_list
     response = json.dumps(response)
+    
+    print(response)
 
     return HttpResponse(response)
 
@@ -162,10 +165,10 @@ def like(request):
         data = json.loads(request.body.decode('utf-8'))
 
         response['status'] = None
+        response['newLikedCount'] = None
 
         pid = data['postId']
         un = data['username']
-        postType = data['type']
         
         # 0. get user
         user: User = None
@@ -185,11 +188,11 @@ def like(request):
 
         if response['status'] is None:
             # 1. check user never liked this post before
-            try:
-                exists = PostUserLike.objects.get(user=user, post=post)
-                if exists is not None:
-                    response['status'] = 'Already liked'
-            except PostUserLike.DoesNotExist:
+            exists = PostUserLike.objects.filter(user=user, post=post).exists()
+            if exists:
+                response['status'] = 'Already liked'
+                response['newLikedCount'] = post.likedCount
+            else:
                 # 2. add a like to the post
                 post.likedCount += 1
                 
@@ -203,5 +206,6 @@ def like(request):
                 record.save()
                 
                 response['status'] = 'success'
+                response['newLikedCount'] = post.likedCount
 
     return HttpResponse(json.dumps(response))

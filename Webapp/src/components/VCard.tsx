@@ -11,19 +11,12 @@ import { useNavigate } from 'react-router-dom';
 import { red } from '@mui/material/colors';
 
 
-const VCard = ({ videoURL, title, author, date }) => {
-    const [count, setCount] = useState(0)
+const VCard = ({ item }) => {
     const [isAdding, setIsAdding] = useState(false)
     const CheckboxChange = (event) => {
         setIsAdding(event.target.checked);
     }
     const boxClick = () => {
-        if (isAdding) {
-            setCount(count - 1);
-        }
-        else {
-            setCount(count + 1);
-        }
     }
 
     const navigate = useNavigate()
@@ -49,10 +42,10 @@ const VCard = ({ videoURL, title, author, date }) => {
             </iframe>
             <CardActionArea onClick={() => { navigate('/detail') }}>
                 <Box id={'display_caption'} sx={{ ml: 0.5, mr: 0.5 }}>
-                    <Typography fontSize={16} fontWeight={600}>{title}</Typography>
+                    <Typography fontSize={16} fontWeight={600}>{item.title}</Typography>
                     <Box sx={{ flex: 1, display: 'flex', flexDirection: 'row' }} justifyContent={'space-between'}>
-                        <Typography fontSize={12} fontWeight={300} sx={{ mt: 1 }}>{author}</Typography>
-                        <Typography fontSize={12} fontWeight={300} sx={{ mt: 1, ml: 1 }}>{date}</Typography>
+                        <Typography fontSize={12} fontWeight={300} sx={{ mt: 1 }}>{item.author}</Typography>
+                        <Typography fontSize={12} fontWeight={300} sx={{ mt: 1, ml: 1 }}>{item.postTime}</Typography>
 
                     </Box>
                 </Box>
@@ -71,7 +64,7 @@ const VCard = ({ videoURL, title, author, date }) => {
                     }}
                 />
                 <Box sx= {{mt: 1, mr: 2}}>
-                    {count}
+                    {item.likedCount}
                 </Box>
 
 

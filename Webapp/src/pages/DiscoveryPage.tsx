@@ -26,9 +26,9 @@ const MyDiscovery = () => {
                             return
                         return (
                             item.type === "blog" ? (
-                                <Card image={item.url} title={item.title} author={item.author} date={item.postTime} />
+                                <Card item={item}/>
                             ) : (
-                                <VCard videoURL={item.url} title={item.title} author={item.author} date={item.postTime} />
+                                <VCard item={item} />
                             )
                         )
                     })
@@ -40,11 +40,12 @@ const MyDiscovery = () => {
                     data.map((item, index) => {
                         if (index % 2 == 0)
                             return
+                        console.log(data)
                         return (
                             item.type === "blog" ? (
-                                <Card image={item.url} title={item.title} author={item.author} date={item.postTime} />
+                                <Card item={item} />
                             ) : (
-                                <VCard videoURL={item.url} title={item.title} author={item.author} date={item.postTime} />
+                                <VCard item={item} />
                             )
                         )
                     })

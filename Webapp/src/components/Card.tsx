@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useContext } from 'react'
 
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -10,21 +10,20 @@ import CardActionArea from '@mui/material/CardActionArea';
 import { useNavigate } from 'react-router-dom';
 import { red } from '@mui/material/colors';
 import { IPost } from "../interfaces";
+import { AppContext } from '../main';
+
+import { setInternetLiked } from '../utils/internetUtils';
 
 
-const Card = ({ image, title, author, date }) => {
-    const [count, setCount] = useState(0)
+
+const Card = ({ item }: {item: IPost}) => {
+    console.log("here",item)
+    const [likeAmount, setLikeAmount] = useState(item.likedCount)
     const [isAdding, setIsAdding] = useState(false)
-    const CheckboxChange = (event) => {
-        setIsAdding(event.target.checked);
-    }
-    const boxClick = () => {
-        if (isAdding) {
-            setCount(count - 1);
-        }
-        else {
-            setCount(count + 1);
-        }
+    const { username } = useContext(AppContext)
+
+    const internetLike = () => {
+        setInternetLiked(username, item.id, setLikeAmount, setIsAdding)
     }
 
     const navigate = useNavigate()
@@ -43,17 +42,17 @@ const Card = ({ image, title, author, date }) => {
             <Box
                 component={'img'}
                 width={'100%'}
-                src={image}
+                src={item.url}
                 sx={{
                     objectFit: 'cover'
                 }}
             />
             <CardActionArea onClick={() => { navigate('/detail') }}>
                 <Box id={'display_caption'} sx={{ ml: 0.5, mr: 0.5 }}>
-                    <Typography fontSize={16} fontWeight={600}>{title}</Typography>
+                    <Typography fontSize={16} fontWeight={600}>{item.title}</Typography>
                     <Box sx={{ flex: 1, display: 'flex', flexDirection: 'row' }} justifyContent={'space-between'}>
-                        <Typography fontSize={12} fontWeight={300} sx={{ mt: 1 }}>{author}</Typography>
-                        <Typography fontSize={12} fontWeight={300} sx={{ mt: 1, ml: 1 }}>{date}</Typography>
+                        <Typography fontSize={12} fontWeight={300} sx={{ mt: 1 }}>{item.author}</Typography>
+                        <Typography fontSize={12} fontWeight={300} sx={{ mt: 1, ml: 1 }}>{item.postTime}</Typography>
 
                     </Box>
                 </Box>
@@ -63,8 +62,7 @@ const Card = ({ image, title, author, date }) => {
                     icon={<FavoriteBorder />}
                     checkedIcon={<Favorite />}
                     checked={isAdding}
-                    onChange={CheckboxChange}
-                    onClick={boxClick}
+                    onClick={internetLike}
                     sx={{
                         color: red[600], '&.Mui-checked': {
                             color: red[600],
@@ -72,7 +70,7 @@ const Card = ({ image, title, author, date }) => {
                     }}
                 />
                 <Box sx= {{mt: 1, mr: 2}}>
-                    {count}
+                    {likeAmount}
                 </Box>
             </Box>
         </Paper>
