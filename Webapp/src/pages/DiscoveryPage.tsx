@@ -10,7 +10,6 @@ import { IPost } from "../interfaces";
 import { getInternetPosts } from '../utils/internetUtils';
 
 
-
 const MyDiscovery = () => {
     useEffect(() => {
         getInternetPosts('http://localhost:8000/api/posts', setData)

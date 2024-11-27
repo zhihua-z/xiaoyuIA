@@ -9,6 +9,7 @@ import Favorite from '@mui/icons-material/Favorite';
 import CardActionArea from '@mui/material/CardActionArea';
 import { useNavigate } from 'react-router-dom';
 import { red } from '@mui/material/colors';
+import { IPost } from "../interfaces";
 
 
 const Card = ({ image, title, author, date }) => {

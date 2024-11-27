@@ -4,5 +4,7 @@ export interface IPost {
     url: string;
     author: string;
     postTime: string;
-    type: "video" | "blog"
+    type: "video" | "blog";
+    LikedCount: number
+    
 }
