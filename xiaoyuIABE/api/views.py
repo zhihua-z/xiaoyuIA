@@ -15,33 +15,61 @@ def index(request):
 def sortByTime(item):
     return item['postTime']
 
+@csrf_exempt
 def getPosts(request):
-    posts = Post.objects.all()
-
-    post_list = []
+    
     response = {}
-
-    for post in posts:
-        post_data = {
-            "id": post.id,
-            "title" : post.title,
-            "url" : post.image,
-            "author" : post.author,
-            "postTime" : post.createdTime.strftime('%Y-%m-%d %H:%M'),
-            "type": post.postType,
-            "likedCount": post.likedCount
-        }
-        post_list.append(post_data)
-
     
-    
-    post_list.sort(key=sortByTime, reverse=True)
+    if request.method == 'POST':
+        
+        # ╭──────────────────────────────────────────────────────────────╮
+        # │                     Check for form data                      │
+        # ╰──────────────────────────────────────────────────────────────╯
+        data = json.loads(request.body.decode('utf-8'))
+        username = data['username']
+        
+        if username is None or username == '':
+            username = 'heizi'
+        
+        print(f'||||||||{username}|||||||')
+        
+        
+        # ╭──────────────────────────────────────────────────────────────╮
+        # │                        Check db logic                        │
+        # ╰──────────────────────────────────────────────────────────────╯
+        posts = Post.objects.all()
+        user = User.objects.get(username=username)
 
-    response['post'] = post_list
+        post_list = []
+        response = {}
+
+        for post in posts:
+            post_data = {
+                "id": post.id,
+                "title" : post.title,
+                "url" : post.image,
+                "author" : post.author,
+                "postTime" : post.createdTime.strftime('%Y-%m-%d %H:%M'),
+                "type": post.postType,
+                "likedCount": post.likedCount,
+                "userLiked": PostUserLike.objects.filter(user = user, post=post).exists()
+            }
+            post_list.append(post_data)
+#  "userLiked": PostUserLike.objects.filter(user=user, post=post).exists()
+        
+        post_list.sort(key=sortByTime, reverse=True)
+
+        response['post'] = post_list
+            
+    else:
+        response['status'] = 'method not allowed'
+    
+    # force our return type to be application/json
     response = json.dumps(response)
     
+    print('-------------')
     print(response)
-
+    
     return HttpResponse(response)
 
 @csrf_exempt
@@ -169,6 +197,8 @@ def like(request):
 
         pid = data['postId']
         un = data['username']
+        
+        print(request.body)
         
         # 0. get user
         user: User = None

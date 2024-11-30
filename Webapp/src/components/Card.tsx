@@ -61,7 +61,7 @@ const Card = ({ item }: {item: IPost}) => {
                 <Checkbox
                     icon={<FavoriteBorder />}
                     checkedIcon={<Favorite />}
-                    checked={isAdding}
+                    checked={item.userLiked}
                     onClick={internetLike}
                     sx={{
                         color: red[600], '&.Mui-checked': {

@@ -1,14 +1,26 @@
 import { IPost } from "../interfaces";
 
-export const getInternetPosts = async (url: string, updateData: React.Dispatch<React.SetStateAction<IPost[]>>) => {
-    const response = await fetch(url)
+export const getInternetPosts = async (
+    url: string, 
+    username: string,
+    updateData: React.Dispatch<React.SetStateAction<IPost[]>>
+) => {
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            username: username
+        })
+    })
+    console.log(response)
 
     if (!response.ok) {
-        throw new Error('Http error! Status : ${response.status}');
+        throw new Error(`Http error! Status : ${response.status}`);
     }
 
     const data = await response.json();
-    console.log(data.post)
 
     updateData(data.post)
 }

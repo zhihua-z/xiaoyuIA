@@ -49,7 +49,8 @@ const login = async(username: string, password: string, navigate: any) => {
 const LoginPage = () => {
     const navigate = useNavigate();
 
-    const { username, setUsername } = useContext(AppContext)
+    const { setUsername } = useContext(AppContext)
+    const [localname, setLocalname] = useState('')
     const [password, setPassword] = useState('')
 
     const handleClick = () => {
@@ -68,7 +69,8 @@ const LoginPage = () => {
     };
 
     const handleLogin = () => {
-        login(username, password, navigate)
+        setUsername(localname)
+        login(localname, password, navigate)
     }
 
     return (
@@ -96,8 +98,8 @@ const LoginPage = () => {
                     required
                     id="outlined-required"
                     label="Username"
-                    value={username}
-                    onChange={e => setUsername(e.target.value)}
+                    value={localname}
+                    onChange={e => setLocalname(e.target.value)}
                     sx={{ width: 250, height: 100, borderRadius: 6 }}
                 />
                 <TextField

@@ -54,7 +54,7 @@ const VCard = ({ item }) => {
                 <Checkbox
                     icon={<FavoriteBorder />}
                     checkedIcon={<Favorite />}
-                    checked={isAdding}
+                    checked={item.userLiked}
                     onChange={CheckboxChange}
                     onClick={boxClick}
                     sx={{
