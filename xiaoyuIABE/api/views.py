@@ -197,6 +197,7 @@ def like(request):
 
         pid = data['postId']
         un = data['username']
+        action = data['action']
         
         print(request.body)
         
@@ -219,23 +220,45 @@ def like(request):
         if response['status'] is None:
             # 1. check user never liked this post before
             exists = PostUserLike.objects.filter(user=user, post=post).exists()
-            if exists:
-                response['status'] = 'Already liked'
-                response['newLikedCount'] = post.likedCount
+            
+            if action == 'like':
+                if exists:
+                    response['status'] = 'Already liked'
+                    response['newLikedCount'] = post.likedCount
+                else:
+                    # 2. add a like to the post
+                    post.likedCount += 1
+                    
+                    # 3. add a like record
+                    record = PostUserLike()
+                    record.user = user
+                    record.post = post
+                    record.createdTime = timezone.now()
+                    
+                    post.save()
+                    record.save()
+
+                    response['status'] = 'success'
+                    response['newLikedCount'] = post.likedCount
+            elif action == 'unlike':
+                if exists:
+                    # 2.a. remove 1 from post like count
+                    
+                    # 2.b. remove the like record
+                    post.likedCount -= 1
+                    post.save()
+                    
+                    record = PostUserLike.objects.get(user=user, post=post)
+                    record.delete()
+                    
+                    response['status'] = 'success'
+                    response['newLikedCount'] = post.likedCount
+                else:
+                    response['status'] = 'not liked before'
+                    response['newLikedCount'] = post.likedCount
+                    
             else:
-                # 2. add a like to the post
-                post.likedCount += 1
-                
-                # 3. add a like record
-                record = PostUserLike()
-                record.user = user
-                record.post = post
-                record.createdTime = timezone.now()
-                
-                post.save()
-                record.save()
-                
-                response['status'] = 'success'
-                response['newLikedCount'] = post.likedCount
+                response['status'] = 'action not found'   
+                response['newLikedCount'] = post.likedCount       
 
     return HttpResponse(json.dumps(response))

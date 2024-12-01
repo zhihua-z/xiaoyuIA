@@ -9,16 +9,20 @@ import Favorite from '@mui/icons-material/Favorite';
 import CardActionArea from '@mui/material/CardActionArea';
 import { useNavigate } from 'react-router-dom';
 import { red } from '@mui/material/colors';
+import { IPost } from '../interfaces';
 
+import useLocalStorage from '../utils/useLocalStorage';
+import { setInternetLiked } from '../utils/internetUtils';
 
-const VCard = ({ item }) => {
-    const [isAdding, setIsAdding] = useState(false)
-    const CheckboxChange = (event) => {
-        setIsAdding(event.target.checked);
+const VCard = ({ item } : { item: IPost}) => {
+    const [likeAmount, setLikeAmount] = useState(item.likedCount)
+    const [isLiked, setIsLiked] = useState(item.userLiked)
+    const [username, setUsername] = useLocalStorage("username", "")
+
+    const internetLike = () => {
+        setInternetLiked(username, item.id, isLiked, setLikeAmount, setIsLiked)
     }
-    const boxClick = () => {
-    }
-
+    
     const navigate = useNavigate()
 
     return (
@@ -54,9 +58,8 @@ const VCard = ({ item }) => {
                 <Checkbox
                     icon={<FavoriteBorder />}
                     checkedIcon={<Favorite />}
-                    checked={item.userLiked}
-                    onChange={CheckboxChange}
-                    onClick={boxClick}
+                    checked={isLiked}
+                    onClick={internetLike}
                     sx={{
                         color: red[600], '&.Mui-checked': {
                             color: red[600],
@@ -64,7 +67,7 @@ const VCard = ({ item }) => {
                     }}
                 />
                 <Box sx= {{mt: 1, mr: 2}}>
-                    {item.likedCount}
+                    {likeAmount}
                 </Box>
 
 

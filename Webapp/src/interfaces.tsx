@@ -5,5 +5,6 @@ export interface IPost {
     author: string;
     postTime: string;
     type: "video" | "blog";
-    likedCount: number
+    likedCount: number;
+    userLiked: boolean;
 }

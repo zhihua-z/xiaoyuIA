@@ -10,8 +10,9 @@ import CardActionArea from '@mui/material/CardActionArea';
 import { useNavigate } from 'react-router-dom';
 import { red } from '@mui/material/colors';
 import { IPost } from "../interfaces";
-import { AppContext } from '../main';
 
+
+import useLocalStorage from '../utils/useLocalStorage';
 import { setInternetLiked } from '../utils/internetUtils';
 
 
@@ -19,11 +20,11 @@ import { setInternetLiked } from '../utils/internetUtils';
 const Card = ({ item }: {item: IPost}) => {
     console.log("here",item)
     const [likeAmount, setLikeAmount] = useState(item.likedCount)
-    const [isAdding, setIsAdding] = useState(false)
-    const { username } = useContext(AppContext)
+    const [isLiked, setIsLiked] = useState(item.userLiked)
+    const [username, setUsername] = useLocalStorage("username", "")
 
     const internetLike = () => {
-        setInternetLiked(username, item.id, setLikeAmount, setIsAdding)
+        setInternetLiked(username, item.id, isLiked, setLikeAmount, setIsLiked)
     }
 
     const navigate = useNavigate()
@@ -61,7 +62,7 @@ const Card = ({ item }: {item: IPost}) => {
                 <Checkbox
                     icon={<FavoriteBorder />}
                     checkedIcon={<Favorite />}
-                    checked={item.userLiked}
+                    checked={isLiked}
                     onClick={internetLike}
                     sx={{
                         color: red[600], '&.Mui-checked': {

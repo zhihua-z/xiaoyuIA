@@ -14,6 +14,8 @@ import IconButton from '@mui/material/IconButton';
 import { AppContext } from '../main';
 import FullScreenImage from '../components/FullScreenImage';
 
+import useLocalStorage from '../utils/useLocalStorage';
+
 
 const login = async(username: string, password: string, navigate: any) => {
     const url = 'http://localhost:8000/api/login'
@@ -49,7 +51,8 @@ const login = async(username: string, password: string, navigate: any) => {
 const LoginPage = () => {
     const navigate = useNavigate();
 
-    const { setUsername } = useContext(AppContext)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [username, setUsername] = useLocalStorage("username", "");
     const [localname, setLocalname] = useState('')
     const [password, setPassword] = useState('')
 
@@ -61,10 +64,6 @@ const LoginPage = () => {
     const handleClickShowPassword = () => setShowPassword((show) => !show);
 
     const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
-        event.preventDefault();
-    };
-
-    const handleMouseUpPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
     };
 
