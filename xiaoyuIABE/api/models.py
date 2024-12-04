@@ -32,6 +32,17 @@ class EmailUserVerification(models.Model):
         return self.email + ' ' + self.verificationCode
 
 class PostUserLike(models.Model):
-    post = Post()
-    user = User()
+    post = models.ForeignKey('Post', on_delete=models.CASCADE)  
+    user = models.ForeignKey('User', on_delete=models.CASCADE)
     createdTime = models.DateTimeField()
+    
+    class Meta:
+        unique_together = (('post', 'user'),)
+
+
+class Task(models.Model):
+    taskType = models.CharField(max_length=20)
+    taskName = models.CharField(max_length=100)
+    taskUser = models.CharField(max_length=50)
+    taskCreateTime = models.DateTimeField()
+    taskDeadline = models.DateTimeField()

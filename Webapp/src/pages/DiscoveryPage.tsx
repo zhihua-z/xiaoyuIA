@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
 
 import Box from '@mui/material/Box';
 import MyAppbar from '../components/MyAppbar';
@@ -9,10 +9,14 @@ import { IPost } from "../interfaces";
 
 import { getInternetPosts } from '../utils/internetUtils';
 
+import { AppContext } from '../main';
 
 const MyDiscovery = () => {
+    
+    const {username} = useContext(AppContext)
+
     useEffect(() => {
-        getInternetPosts('http://localhost:8000/api/posts', setData)
+        getInternetPosts('http://localhost:8000/api/posts', username, setData)
     }, [])
 
     const [data, setData] = useState<IPost[]>([])
@@ -26,9 +30,9 @@ const MyDiscovery = () => {
                             return
                         return (
                             item.type === "blog" ? (
-                                <Card image={item.url} title={item.title} author={item.author} date={item.postTime} />
+                                <Card item={item}/>
                             ) : (
-                                <VCard videoURL={item.url} title={item.title} author={item.author} date={item.postTime} />
+                                <VCard item={item} />
                             )
                         )
                     })
@@ -40,11 +44,12 @@ const MyDiscovery = () => {
                     data.map((item, index) => {
                         if (index % 2 == 0)
                             return
+                        console.log(data)
                         return (
                             item.type === "blog" ? (
-                                <Card image={item.url} title={item.title} author={item.author} date={item.postTime} />
+                                <Card item={item} />
                             ) : (
-                                <VCard videoURL={item.url} title={item.title} author={item.author} date={item.postTime} />
+                                <VCard item={item} />
                             )
                         )
                     })

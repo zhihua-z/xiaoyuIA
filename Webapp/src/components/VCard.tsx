@@ -9,23 +9,20 @@ import Favorite from '@mui/icons-material/Favorite';
 import CardActionArea from '@mui/material/CardActionArea';
 import { useNavigate } from 'react-router-dom';
 import { red } from '@mui/material/colors';
+import { IPost } from '../interfaces';
 
+import useLocalStorage from '../utils/useLocalStorage';
+import { setInternetLiked } from '../utils/internetUtils';
 
-const VCard = ({ videoURL, title, author, date }) => {
-    const [count, setCount] = useState(0)
-    const [isAdding, setIsAdding] = useState(false)
-    const CheckboxChange = (event) => {
-        setIsAdding(event.target.checked);
+const VCard = ({ item } : { item: IPost}) => {
+    const [likeAmount, setLikeAmount] = useState(item.likedCount)
+    const [isLiked, setIsLiked] = useState(item.userLiked)
+    const [username, setUsername] = useLocalStorage("username", "")
+
+    const internetLike = () => {
+        setInternetLiked(username, item.id, isLiked, setLikeAmount, setIsLiked)
     }
-    const boxClick = () => {
-        if (isAdding) {
-            setCount(count - 1);
-        }
-        else {
-            setCount(count + 1);
-        }
-    }
-
+    
     const navigate = useNavigate()
 
     return (
@@ -49,10 +46,10 @@ const VCard = ({ videoURL, title, author, date }) => {
             </iframe>
             <CardActionArea onClick={() => { navigate('/detail') }}>
                 <Box id={'display_caption'} sx={{ ml: 0.5, mr: 0.5 }}>
-                    <Typography fontSize={16} fontWeight={600}>{title}</Typography>
+                    <Typography fontSize={16} fontWeight={600}>{item.title}</Typography>
                     <Box sx={{ flex: 1, display: 'flex', flexDirection: 'row' }} justifyContent={'space-between'}>
-                        <Typography fontSize={12} fontWeight={300} sx={{ mt: 1 }}>{author}</Typography>
-                        <Typography fontSize={12} fontWeight={300} sx={{ mt: 1, ml: 1 }}>{date}</Typography>
+                        <Typography fontSize={12} fontWeight={300} sx={{ mt: 1 }}>{item.author}</Typography>
+                        <Typography fontSize={12} fontWeight={300} sx={{ mt: 1, ml: 1 }}>{item.postTime}</Typography>
 
                     </Box>
                 </Box>
@@ -61,9 +58,8 @@ const VCard = ({ videoURL, title, author, date }) => {
                 <Checkbox
                     icon={<FavoriteBorder />}
                     checkedIcon={<Favorite />}
-                    checked={isAdding}
-                    onChange={CheckboxChange}
-                    onClick={boxClick}
+                    checked={isLiked}
+                    onClick={internetLike}
                     sx={{
                         color: red[600], '&.Mui-checked': {
                             color: red[600],
@@ -71,7 +67,7 @@ const VCard = ({ videoURL, title, author, date }) => {
                     }}
                 />
                 <Box sx= {{mt: 1, mr: 2}}>
-                    {count}
+                    {likeAmount}
                 </Box>
 
 

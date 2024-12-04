@@ -10,5 +10,7 @@ urlpatterns = [
     path("register", views.register, name='register'),
     path("sendVerificationCode", views.sendVerificationCode, name='sendVerification'),
     path("verifyCode", views.verifyCode, name='verifyCode'),
-    path("like", view=views.like, name="like")
+    path("like", view=views.like, name="like"),
+    path("createTask", views.createTask, name="createTask"),
+    path("getTask", views.getTask, name="getTask"),
 ]

@@ -12,6 +12,7 @@ import SignupPage from './pages/SignupPage'
 import CreateUserPage from './pages/CreateUserPage'
 import MessagePage from './pages/MessagePage'
 import MePage from './pages/MePage'
+import CreateTaskPage from './pages/CreateTaskPage'
 
 import {
     createBrowserRouter,
@@ -60,6 +61,10 @@ const router = createBrowserRouter([
     {
         path: "/me",
         element: <MePage />
+    },
+    {
+        path: "/createtask",
+        element:<CreateTaskPage />
     }
 ])
 

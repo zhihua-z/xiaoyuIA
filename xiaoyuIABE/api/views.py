@@ -5,7 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 # Create your views here.
 
-from .models import Post, User, EmailUserVerification, PostUserLike
+from .models import Post, User, EmailUserVerification, PostUserLike, Task
 from .emailbot import sendVerification
 
 
@@ -15,30 +15,61 @@ def index(request):
 def sortByTime(item):
     return item['postTime']
 
+@csrf_exempt
 def getPosts(request):
-    posts = Post.objects.all()
-
-    post_list = []
+    
     response = {}
-
-    for post in posts:
-        post_data = {
-            "id": post.id,
-            "title" : post.title,
-            "url" : post.image,
-            "author" : post.author,
-            "postTime" : post.createdTime.strftime('%Y-%m-%d %H:%M'),
-            "type": post.postType
-        }
-        post_list.append(post_data)
-
     
-    
-    post_list.sort(key=sortByTime, reverse=True)
+    if request.method == 'POST':
+        
+        # ╭──────────────────────────────────────────────────────────────╮
+        # │                     Check for form data                      │
+        # ╰──────────────────────────────────────────────────────────────╯
+        data = json.loads(request.body.decode('utf-8'))
+        username = data['username']
+        
+        if username is None or username == '':
+            username = 'heizi'
+        
+        print(f'||||||||{username}|||||||')
+        
+        
+        # ╭──────────────────────────────────────────────────────────────╮
+        # │                        Check db logic                        │
+        # ╰──────────────────────────────────────────────────────────────╯
+        posts = Post.objects.all()
+        user = User.objects.get(username=username)
 
-    response['post'] = post_list
+        post_list = []
+        response = {}
+
+        for post in posts:
+            post_data = {
+                "id": post.id,
+                "title" : post.title,
+                "url" : post.image,
+                "author" : post.author,
+                "postTime" : post.createdTime.strftime('%Y-%m-%d %H:%M'),
+                "type": post.postType,
+                "likedCount": post.likedCount,
+                "userLiked": PostUserLike.objects.filter(user = user, post=post).exists()
+            }
+            post_list.append(post_data)
+#  "userLiked": PostUserLike.objects.filter(user=user, post=post).exists()
+        
+        post_list.sort(key=sortByTime, reverse=True)
+
+        response['post'] = post_list
+            
+    else:
+        response['status'] = 'method not allowed'
+    
+    # force our return type to be application/json
     response = json.dumps(response)
-
+    
+    print('-------------')
+    print(response)
+    
     return HttpResponse(response)
 
 @csrf_exempt
@@ -162,10 +193,13 @@ def like(request):
         data = json.loads(request.body.decode('utf-8'))
 
         response['status'] = None
+        response['newLikedCount'] = None
 
         pid = data['postId']
         un = data['username']
-        postType = data['type']
+        action = data['action']
+        
+        print(request.body)
         
         # 0. get user
         user: User = None
@@ -185,23 +219,122 @@ def like(request):
 
         if response['status'] is None:
             # 1. check user never liked this post before
-            try:
-                exists = PostUserLike.objects.get(user=user, post=post)
-                if exists is not None:
+            exists = PostUserLike.objects.filter(user=user, post=post).exists()
+            
+            if action == 'like':
+                if exists:
                     response['status'] = 'Already liked'
-            except PostUserLike.DoesNotExist:
-                # 2. add a like to the post
-                post.likedCount += 1
-                
-                # 3. add a like record
-                record = PostUserLike()
-                record.user = user
-                record.post = post
-                record.createdTime = timezone.now()
-                
-                post.save()
-                record.save()
-                
-                response['status'] = 'success'
+                    response['newLikedCount'] = post.likedCount
+                else:
+                    # 2. add a like to the post
+                    post.likedCount += 1
+                    
+                    # 3. add a like record
+                    record = PostUserLike()
+                    record.user = user
+                    record.post = post
+                    record.createdTime = timezone.now()
+                    
+                    post.save()
+                    record.save()
+
+                    response['status'] = 'success'
+                    response['newLikedCount'] = post.likedCount
+            elif action == 'unlike':
+                if exists:
+                    # 2.a. remove 1 from post like count
+                    
+                    # 2.b. remove the like record
+                    post.likedCount -= 1
+                    post.save()
+                    
+                    record = PostUserLike.objects.get(user=user, post=post)
+                    record.delete()
+                    
+                    response['status'] = 'success'
+                    response['newLikedCount'] = post.likedCount
+                else:
+                    response['status'] = 'not liked before'
+                    response['newLikedCount'] = post.likedCount
+                    
+            else:
+                response['status'] = 'action not found'   
+                response['newLikedCount'] = post.likedCount       
 
     return HttpResponse(json.dumps(response))
+
+@csrf_exempt
+def createTask(request):
+    response = {}
+
+    if request.method == 'POST':
+        data = json.loads(request.body.decode('utf-8'))
+        try:
+            exists = Task.objects.get(taskName=data['taskname'])
+            if exists is not None:
+                response['status'] = 'task exists'
+        except Task.DoesNotExist:
+            t = Task()
+            t.taskType = data['task type']
+            t.taskName = data['taskname']
+            t.taskUser = data['task user']
+            t.taskCreateTime = timezone.now()
+            t.taskDeadline = data['deadline']
+            t.save()
+            
+            response['status'] = 'success'
+    else:
+        response['status'] = 'method not allowed'
+    
+    # force our return type to be application/json
+    response = json.dumps(response)
+    
+    return HttpResponse(response)
+
+@csrf_exempt
+def getTask(request):
+    
+    response = {}
+    
+    if request.method == 'POST':
+        data = json.loads(request.body.decode('utf-8'))
+        taskName = data['taskname']
+        
+        if taskName is None or taskName == '':
+            taskName = 'heizi'
+        
+        print(f'||||||||{taskName}|||||||')
+        
+        
+        # ╭──────────────────────────────────────────────────────────────╮
+        # │                        Check db logic                        │
+        # ╰──────────────────────────────────────────────────────────────╯
+        task = Task.objects.all()
+        taskName = Task.objects.get(taskName=taskName)
+        Tasks_list = []
+        response = {}
+
+        for Tasks in task:
+            Tasks_data = {
+                "id": Tasks.id,
+                "Type" : Tasks.taskType,
+                "name" : Tasks.taskName,
+                "user" : Tasks.taskUser,
+                "taskCreateTime" : Tasks.taskCreateTime.strftime('%Y-%m-%d %H:%M'),
+                "taskDeadline" : Tasks.taskDeadline.strftime('%Y-%m-%d %H:%M'),
+            }
+            Tasks_list.append(Tasks_data)
+        Tasks_list.sort(key=sortByTime, reverse=True)
+
+        response['task'] = Tasks_list
+            
+    else:
+        response['status'] = 'method not allowed'
+    
+    # force our return type to be application/json
+    response = json.dumps(response)
+    
+    print('-------------')
+    print(response)
+    
+    return HttpResponse(response)

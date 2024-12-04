@@ -1,16 +1,9 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import MyAppbar from '../components/MyAppbar';
 import { BarChart } from '@mui/x-charts/BarChart';
 import Switch from '@mui/material/Switch';
-import dayjs, { Dayjs } from 'dayjs';
-import Badge from '@mui/material/Badge';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { PickersDay, PickersDayProps } from '@mui/x-date-pickers/PickersDay';
-import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
-import { DayCalendarSkeleton } from '@mui/x-date-pickers/DayCalendarSkeleton';
 import { Gauge, gaugeClasses } from '@mui/x-charts/Gauge';
 import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress';
 import { styled } from '@mui/material/styles';
@@ -22,79 +15,8 @@ import { LineChart } from '@mui/x-charts/LineChart';
 import { PieChart } from '@mui/x-charts/PieChart';
 
 import FullScreenImage from '../components/FullScreenImage';
-
-function getRandomNumber(min: number, max: number) {
-    return Math.round(Math.random() * (max - min) + min);
-}
-
-function fakeFetch(date: Dayjs, { signal }: { signal: AbortSignal }) {
-    return new Promise<{ daysToHighlight: number[] }>((resolve, reject) => {
-        const timeout = setTimeout(() => {
-            const daysInMonth = date.daysInMonth();
-            const daysToHighlight = [1, 2, 3].map(() => getRandomNumber(1, daysInMonth));
-
-            resolve({ daysToHighlight });
-        }, 500);
-
-        signal.onabort = () => {
-            clearTimeout(timeout);
-            reject(new DOMException('aborted', 'AbortError'));
-        };
-    });
-}
-
-const initialValue = dayjs('2024-11-18');
-
-function ServerDay(props: PickersDayProps<Dayjs> & { highlightedDays?: number[] }) {
-    const { highlightedDays = [], day, outsideCurrentMonth, ...other } = props;
-
-    const isSelected =
-        !props.outsideCurrentMonth && highlightedDays.indexOf(props.day.date()) >= 0;
-
-    return (
-        <Badge
-            key={props.day.toString()}
-            overlap="circular"
-            badgeContent={isSelected ? '🌚' : undefined}
-        >
-            <PickersDay {...other} outsideCurrentMonth={outsideCurrentMonth} day={day} />
-        </Badge>
-    );
-}
-
-
-const DataCard = ({ color, children = null }) => {
-    return (
-        <Box
-            sx={{
-                width: '25%',
-                height: 200,
-                margin: 'auto',
-                borderRadius: 10
-            }}
-        >
-            <Box sx={{
-                height: '100%',
-                width: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center'
-            }}>
-                <Box
-                    sx={{
-                        background: color,
-                        height: '90%',
-                        width: '90%',
-                        margin: 'auto',
-                        borderRadius: 5
-                    }}
-                >
-                    {children}
-                </Box>
-            </Box>
-        </Box>
-    )
-}
+import DataCard from '../components/DataCard';
+import { runCardColor, waterCardColor, calorieCardColor, hearRateCardColor } from '../utils/colors';
 
 const GraphCard = ({ color, children = null }) => {
     return (
@@ -146,30 +68,45 @@ const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
 
 const CircleGauge = () => {
     return (
-        <Gauge
-            value={60}
-            cornerRadius="50%"
-            text={'1.25'}
-            sx={(theme) => ({
-                margin: 'auto',
-                width: '60%',
-                height: '60%',
-                [`& .${gaugeClasses.valueText}`]: {
-                    fontSize: 25,
-                    color: theme.palette.common.white,
-                },
-                [`& .${gaugeClasses.valueArc}`]: {
-                    fill: '#FFFFFF',
-                },
-                [`& .${gaugeClasses.referenceArc}`]: {
-                    fill: 'rgba(255, 255, 255, 0.1)',
-                    backdropFilter: 'blur(10px)',
-                },
-            })}
-        />
+        <>
+            <Box sx={{position: 'absolute'}}>
+                <Typography 
+                    fontWeight={600} 
+                    fontSize={26} 
+                    color='white'
+                    sx={{
+                        mt: 4.4,
+                        ml: 12.5
+                    }}
+                >
+                    60
+                </Typography>
+            </Box>
+            <Gauge
+                value={60}
+                cornerRadius="50%"
+                text={''}
+                sx={(theme) => ({
+                    margin: 'auto',
+                    width: '60%',
+                    height: '60%',
+                    // [`& .${gaugeClasses.valueText}`]: {
+                    //     fontSize: 25,
+                    //     color: theme.palette.common.white,
+                    // },
+                    [`& .${gaugeClasses.valueArc}`]: {
+                        fill: '#FFFFFF',
+                    },
+                    [`& .${gaugeClasses.referenceArc}`]: {
+                        fill: 'rgba(255, 255, 255, 0.1)',
+                        backdropFilter: 'blur(10px)',
+                    },
+                })}
+            />
+        </>
+
 
     )
-
 }
 
 const MyGauge = () => {
@@ -277,7 +214,7 @@ const DashboardPage = () => {
                         mt: 3,
                     }}
                 >
-                    <DataCard color={'#30b6b5'}>
+                    <DataCard color={runCardColor}>
                         <Box sx={{ display: 'flex', flexDirection: 'row', mt: 2 }}>
                             <DirectionsRunIcon />
                             <Typography variant='h7' fontWeight={700} color='white'>Run distance</Typography>
@@ -293,7 +230,6 @@ const DashboardPage = () => {
                                 mt: 4, ml: 'auto',
                                 mr: 'auto',
                             }} />
-
                     </DataCard>
                     <DataCard color={'#fe7445'}>
                         <Box sx={{ display: 'flex', flexDirection: 'row', mt: 2 }}>
@@ -334,7 +270,7 @@ const DashboardPage = () => {
                     }}
                 >
                     <GraphCard color={'#FFFFFF'}>
-                        <Typography fontWeight={600} fontSize={24} sx={{ ml: 2}}>Workout hour</Typography>
+                        <Typography fontWeight={600} fontSize={24} sx={{ ml: 2 }}>Workout hour</Typography>
                         <BarChart
                             xAxis={[{ scaleType: 'band', data: ['day1', 'day2', 'day3', 'day4', 'day5', 'day6', 'day7'] }]}
                             height={150}
@@ -353,7 +289,7 @@ const DashboardPage = () => {
 
                     </GraphCard>
                     <GraphCard color={'#FFFFFF'}>
-                    <Typography fontWeight={600} fontSize={24} sx={{ ml: 2}}>Progress</Typography>
+                        <Typography fontWeight={600} fontSize={24} sx={{ ml: 2 }}>Progress</Typography>
                         <Box sx={{ display: 'flex', ml: 5 }}>
                             <PieChart
                                 series={[
