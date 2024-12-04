@@ -38,3 +38,11 @@ class PostUserLike(models.Model):
     
     class Meta:
         unique_together = (('post', 'user'),)
+
+
+class Task(models.Model):
+    taskType = models.CharField(max_length=20)
+    taskName = models.CharField(max_length=100)
+    taskUser = models.CharField(max_length=50)
+    taskCreateTime = models.DateTimeField()
+    taskDeadline = models.DateTimeField()

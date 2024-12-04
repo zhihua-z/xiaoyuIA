@@ -2,26 +2,94 @@ import { useState } from 'react'
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import MyAppbar from '../components/MyAppbar';
-import { BarChart } from '@mui/x-charts/BarChart';
-import Switch from '@mui/material/Switch';
-import dayjs, { Dayjs } from 'dayjs';
-import Badge from '@mui/material/Badge';
-import { PickersDay, PickersDayProps } from '@mui/x-date-pickers/PickersDay';
-import { Gauge, gaugeClasses } from '@mui/x-charts/Gauge';
-import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress';
-import { styled } from '@mui/material/styles';
 import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
-import WaterDropTwoToneIcon from '@mui/icons-material/WaterDropTwoTone';
-import LocalFireDepartmentTwoToneIcon from '@mui/icons-material/LocalFireDepartmentTwoTone';
 import MonitorHeartTwoToneIcon from '@mui/icons-material/MonitorHeartTwoTone';
-import { LineChart } from '@mui/x-charts/LineChart';
-import { PieChart } from '@mui/x-charts/PieChart';
-
+import { styled } from '@mui/material/styles';
+import Checkbox, { CheckboxProps } from '@mui/material/Checkbox';
+import { useNavigate } from 'react-router-dom';
 import { runCardColor, waterCardColor, calorieCardColor, hearRateCardColor } from '../utils/colors';
-
 import FullScreenImage from '../components/FullScreenImage';
 import DataCard from '../components/DataCard';
 import TaskCard from '../components/TaskCard';
+import SpeedDial from '@mui/material/SpeedDial';
+import SpeedDialIcon from '@mui/material/SpeedDialIcon';
+import SpeedDialAction from '@mui/material/SpeedDialAction';
+import EditIcon from '@mui/icons-material/Edit';
+import NoteAddIcon from '@mui/icons-material/NoteAdd';
+import SettingsIcon from '@mui/icons-material/Settings';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+
+const BpIcon = styled('span')(({ theme }) => ({
+    borderRadius: 3,
+    width: 16,
+    height: 16,
+    boxShadow: 'inset 0 0 0 1px rgba(16,22,26,.2), inset 0 -1px 0 rgba(16,22,26,.1)',
+    backgroundColor: '#f5f8fa',
+    backgroundImage: 'linear-gradient(180deg,hsla(0,0%,100%,.8),hsla(0,0%,100%,0))',
+    'input:hover ~ &': {
+        backgroundColor: '#ebf1f5',
+        ...theme.applyStyles('dark', {
+            backgroundColor: '#30404d',
+        })
+    }
+}))
+
+const BpCheckedIcon = styled(BpIcon)({
+    backgroundColor: '#d742f5',
+    '&::before': {
+        display: 'block',
+        width: 16,
+        height: 16,
+        backgroundImage:
+            "url(\"data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath" +
+            " fill-rule='evenodd' clip-rule='evenodd' d='M12 5c-.28 0-.53.11-.71.29L7 9.59l-2.29-2.3a1.003 " +
+            "1.003 0 00-1.42 1.42l3 3c.18.18.43.29.71.29s.53-.11.71-.29l5-5A1.003 1.003 0 0012 5z' fill='%23fff'/%3E%3C/svg%3E\")",
+        content: '""',
+    },
+    backgroundImage: 'linear-gradient(180deg,hsla(0,0%,100%,.1),hsla(0,0%,100%,0))',
+    'input:hover ~ &': {
+        backgroundColor: '#106ba3',
+    },
+});
+function BpCheckbox(props: CheckboxProps) {
+    return (
+        <Checkbox
+            sx={{ '&:hover': { bgcolor: 'transparent' } }}
+            disableRipple
+            checkedIcon={<BpCheckedIcon />}
+            icon={<BpIcon />}
+            inputProps={{ 'aria-label': 'Checkbox demo' }}
+            {...props}
+        />
+    );
+}
+
+const OpenIconSpeedDial = () => {
+    const navigate = useNavigate()
+    const actions = [
+        { icon: <SettingsIcon />, name: 'Manage' },
+        { icon: <CalendarMonthIcon />, name: 'Show Calendar' },
+        { icon: <NoteAddIcon />, name: 'Add Task', onClick: () => navigate('/createtask') },
+    ];
+    return (
+        <Box sx={{ height: 320, transform: 'translateZ(0px)', flexGrow: 1 }}>
+            <SpeedDial
+                ariaLabel="SpeedDial openIcon example"
+                sx={{ position: 'absolute', bottom: 0, right: 16, color: '#d742f5' }}
+                icon={<SpeedDialIcon openIcon={<EditIcon />} />}
+            >
+                {actions.map((action) => (
+                    <SpeedDialAction
+                        key={action.name}
+                        onClick={action.onClick}
+                        icon={action.icon}
+                        tooltipTitle={action.name}
+                    />
+                ))}
+            </SpeedDial>
+        </Box>
+    );
+}
 
 const GraphCard = ({ color, children = null }) => {
     return (
@@ -56,145 +124,10 @@ const GraphCard = ({ color, children = null }) => {
         </Box>
     )
 }
-
-const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
-    width: 140,
-    height: 10,
-    borderRadius: 5,
-    [`&.${linearProgressClasses.colorPrimary}`]: {
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-        backdropFilter: 'blur(10px)'
-    },
-    [`& .${linearProgressClasses.bar}`]: {
-        borderRadius: 5,
-        backgroundColor: '#FFFFFF',
-    },
-}));
-
-const CircleGauge = () => {
-    return (
-        <>
-            <Box sx={{ position: 'absolute' }}>
-                <Typography
-                    fontWeight={600}
-                    fontSize={26}
-                    color='white'
-                    sx={{
-                        mt: 4.4,
-                        ml: 17
-                    }}
-                >
-                    60
-                </Typography>
-            </Box>
-            <Gauge
-                value={60}
-                cornerRadius="50%"
-                text={''}
-                sx={(theme) => ({
-                    margin: 'auto',
-                    width: '60%',
-                    height: '60%',
-                    // [`& .${gaugeClasses.valueText}`]: {
-                    //     fontSize: 25,
-                    //     color: theme.palette.common.white,
-                    // },
-                    [`& .${gaugeClasses.valueArc}`]: {
-                        fill: '#FFFFFF',
-                    },
-                    [`& .${gaugeClasses.referenceArc}`]: {
-                        fill: 'rgba(255, 255, 255, 0.1)',
-                        backdropFilter: 'blur(10px)',
-                    },
-                })}
-            />
-        </>
-
-
-    )
-}
-
-const MyGauge = () => {
-    return (
-        <Gauge
-            cornerRadius="50%"
-            value={60}
-            startAngle={-90}
-            endAngle={90}
-            text={"Normal"}
-            sx={(theme) => ({
-                width: '70%',
-                height: '70%',
-                [`& .${gaugeClasses.valueText}`]: {
-                    fontSize: 15,
-                },
-                [`& .${gaugeClasses.valueArc}`]: {
-                    fill: '#FFFFFF',
-                },
-                [`& .${gaugeClasses.referenceArc}`]: {
-                    fill: 'rgba(255, 255, 255, 0.1)',
-                    backdropFilter: 'blur(10px)',
-                },
-                ml: 'auto',
-                mr: 'auto',
-            })}
-        />
-    )
-}
-
-const BasicLineChart = () => {
-    return (
-        <LineChart
-            xAxis={[{ data: [60, 70, 80, 90, 100, 110] }]}
-            series={[
-                {
-                    data: [100, 88, 70, 72, 90, 85],
-                },
-            ]}
-            width={230}
-            height={150}
-            sx={{
-                display: 'flex',
-                mr: 5,
-            }}
-        />
-    );
-}
+const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
 
 const TaskPage = () => {
-    const [seriesNb, setSeriesNb] = useState(2);
-    const [suggestion, setSuggestion] = useState('eat more apple and orange')
-
-    const handleSeriesNbChange = (event: Event, newValue: number | number[]) => {
-        if (typeof newValue !== 'number') {
-            return;
-        }
-        setSeriesNb(newValue);
-    };
-    const highlightScope = {
-        highlight: 'series',
-        fade: 'global',
-    } as const;
-
-    const series = [
-        {
-            label: 'This Week',
-            data: [
-                3, 10, 2, 7, 15, 10, 4
-            ],
-
-        },
-        {
-            label: 'Last Week',
-            data: [
-                2, 4, 13, 11, 8, 1, 5
-            ],
-
-        },
-
-
-    ].map((s) => ({ ...s, highlightScope }));
 
     return (
         <>
@@ -212,7 +145,7 @@ const TaskPage = () => {
                 <Box
                     sx={{
                         display: 'flex',
-                        flexDirection: 'row',
+                        flexDirection: 'column',
                         width: '70%',
                         ml: 'auto',
                         mr: 'auto',
@@ -224,11 +157,24 @@ const TaskPage = () => {
                             <MonitorHeartTwoToneIcon />
                             <Typography variant='h7' fontWeight={700} color='white'>Heart Rates</Typography>
                             <Typography variant='h7' fontWeight={200} color='white' ml={10}>my task 123123</Typography>
+                            <Typography ml={10}>12/Nov/2024</Typography>
+                            <BpCheckbox {...label} color="secondary" sx={{ ml: 10, mb: 5, color: '#605EA1' }} />
+                        </Box>
+
+                    </TaskCard>
+                    <TaskCard color={runCardColor}>
+                        <Box sx={{ display: 'flex', flexDirection: 'row', mt: 3, ml: 2 }}>
+                            <DirectionsRunIcon />
+                            <Typography variant='h7' fontWeight={700} color='white'>Run 10 miles</Typography>
+                            <Typography variant='h7' fontWeight={200} color='white' ml={10}>my task 123123</Typography>
+                            <Typography ml={10}>20/Nov/2024</Typography>
+                            <BpCheckbox {...label} sx={{ ml: 10, mb: 5, color: '#7ED4AD', position: 'end' }} />
                         </Box>
 
                     </TaskCard>
 
                 </Box>
+                <OpenIconSpeedDial />
             </Box>
         </>
     )

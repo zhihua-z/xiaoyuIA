@@ -4,9 +4,6 @@ import Box from '@mui/material/Box';
 import MyAppbar from '../components/MyAppbar';
 import { BarChart } from '@mui/x-charts/BarChart';
 import Switch from '@mui/material/Switch';
-import dayjs, { Dayjs } from 'dayjs';
-import Badge from '@mui/material/Badge';
-import { PickersDay, PickersDayProps } from '@mui/x-date-pickers/PickersDay';
 import { Gauge, gaugeClasses } from '@mui/x-charts/Gauge';
 import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress';
 import { styled } from '@mui/material/styles';
@@ -79,7 +76,7 @@ const CircleGauge = () => {
                     color='white'
                     sx={{
                         mt: 4.4,
-                        ml: 17
+                        ml: 12.5
                     }}
                 >
                     60

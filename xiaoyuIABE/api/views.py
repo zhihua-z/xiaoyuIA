@@ -5,7 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 # Create your views here.
 
-from .models import Post, User, EmailUserVerification, PostUserLike
+from .models import Post, User, EmailUserVerification, PostUserLike, Task
 from .emailbot import sendVerification
 
 
@@ -262,3 +262,79 @@ def like(request):
                 response['newLikedCount'] = post.likedCount       
 
     return HttpResponse(json.dumps(response))
+
+@csrf_exempt
+def createTask(request):
+    response = {}
+
+    if request.method == 'POST':
+        data = json.loads(request.body.decode('utf-8'))
+        try:
+            exists = Task.objects.get(taskName=data['taskname'])
+            if exists is not None:
+                response['status'] = 'task exists'
+        except Task.DoesNotExist:
+            t = Task()
+            t.taskType = data['task type']
+            t.taskName = data['taskname']
+            t.taskUser = data['task user']
+            t.taskCreateTime = timezone.now()
+            t.taskDeadline = data['deadline']
+            t.save()
+            
+            response['status'] = 'success'
+    else:
+        response['status'] = 'method not allowed'
+    
+    # force our return type to be application/json
+    response = json.dumps(response)
+    
+    return HttpResponse(response)
+
+@csrf_exempt
+def getTask(request):
+    
+    response = {}
+    
+    if request.method == 'POST':
+        data = json.loads(request.body.decode('utf-8'))
+        taskName = data['taskname']
+        
+        if taskName is None or taskName == '':
+            taskName = 'heizi'
+        
+        print(f'||||||||{taskName}|||||||')
+        
+        
+        # ╭──────────────────────────────────────────────────────────────╮
+        # │                        Check db logic                        │
+        # ╰──────────────────────────────────────────────────────────────╯
+        task = Task.objects.all()
+        taskName = Task.objects.get(taskName=taskName)
+        Tasks_list = []
+        response = {}
+
+        for Tasks in task:
+            Tasks_data = {
+                "id": Tasks.id,
+                "Type" : Tasks.taskType,
+                "name" : Tasks.taskName,
+                "user" : Tasks.taskUser,
+                "taskCreateTime" : Tasks.taskCreateTime.strftime('%Y-%m-%d %H:%M'),
+                "taskDeadline" : Tasks.taskDeadline.strftime('%Y-%m-%d %H:%M'),
+            }
+            Tasks_list.append(Tasks_data)
+        Tasks_list.sort(key=sortByTime, reverse=True)
+
+        response['task'] = Tasks_list
+            
+    else:
+        response['status'] = 'method not allowed'
+    
+    # force our return type to be application/json
+    response = json.dumps(response)
+    
+    print('-------------')
+    print(response)
+    
+    return HttpResponse(response)
