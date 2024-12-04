@@ -8,3 +8,11 @@ export interface IPost {
     likedCount: number;
     userLiked: boolean;
 }
+
+export interface ITask {
+    TaskType: string;
+    TaskName: string;
+    TaskUser: string;
+    TaskCreateTime: Date;
+    TaskDeadline: Date;
+}

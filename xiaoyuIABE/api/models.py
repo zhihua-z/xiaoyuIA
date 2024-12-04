@@ -6,7 +6,7 @@ class Post(models.Model):
     image = models.CharField(max_length=500) 
     author = models.CharField(max_length= 50)
     createdTime = models.DateTimeField()
-    postType = models.CharField(max_length=20)
+    typename = models.ForeignKey('PostType', on_delete=models.CASCADE)  
     likedCount = models.BigIntegerField()
     
     def __str__(self):
@@ -41,8 +41,23 @@ class PostUserLike(models.Model):
 
 
 class Task(models.Model):
-    taskType = models.CharField(max_length=20)
+    typename = models.ForeignKey('TaskType', on_delete=models.CASCADE) 
     taskName = models.CharField(max_length=100)
     taskUser = models.CharField(max_length=50)
     taskCreateTime = models.DateTimeField()
     taskDeadline = models.DateTimeField()
+    
+    def __str__(self):
+        return f'{self.typename} - {self.taskName} for {self.taskUser} due on {self.taskDeadline}'
+    
+class PostType(models.Model):
+    typename = models.CharField(max_length=100)
+    
+    def __str__(self):
+        return self.typename
+    
+class TaskType(models.Model):
+    typename = models.CharField(max_length=100)
+    
+    def __str__(self):
+        return self.typename

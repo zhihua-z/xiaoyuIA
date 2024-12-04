@@ -7,6 +7,7 @@ const TaskCard = ({ color, children } : {color: string, children: any}) => {
                 width: '100%',
                 height: 75,
                 margin: 'auto',
+                mt: 3,
                 borderRadius: 10
             }}
         >

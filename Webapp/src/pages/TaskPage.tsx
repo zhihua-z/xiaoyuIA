@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import MyAppbar from '../components/MyAppbar';
@@ -8,7 +8,7 @@ import { styled } from '@mui/material/styles';
 import Checkbox, { CheckboxProps } from '@mui/material/Checkbox';
 import { useNavigate } from 'react-router-dom';
 import { runCardColor, waterCardColor, calorieCardColor, hearRateCardColor } from '../utils/colors';
-import FullScreenImage from '../components/FullScreenImage';
+import ScrollableScreenImage from '../components/ScrollableScreenImage';
 import DataCard from '../components/DataCard';
 import TaskCard from '../components/TaskCard';
 import SpeedDial from '@mui/material/SpeedDial';
@@ -18,6 +18,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import NoteAddIcon from '@mui/icons-material/NoteAdd';
 import SettingsIcon from '@mui/icons-material/Settings';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import { ITask } from '../interfaces';
 
 const BpIcon = styled('span')(({ theme }) => ({
     borderRadius: 3,
@@ -72,22 +73,20 @@ const OpenIconSpeedDial = () => {
         { icon: <NoteAddIcon />, name: 'Add Task', onClick: () => navigate('/createtask') },
     ];
     return (
-        <Box sx={{ height: 320, transform: 'translateZ(0px)', flexGrow: 1 }}>
-            <SpeedDial
-                ariaLabel="SpeedDial openIcon example"
-                sx={{ position: 'absolute', bottom: 0, right: 16, color: '#d742f5' }}
-                icon={<SpeedDialIcon openIcon={<EditIcon />} />}
-            >
-                {actions.map((action) => (
-                    <SpeedDialAction
-                        key={action.name}
-                        onClick={action.onClick}
-                        icon={action.icon}
-                        tooltipTitle={action.name}
-                    />
-                ))}
-            </SpeedDial>
-        </Box>
+        <SpeedDial
+            ariaLabel="SpeedDial openIcon example"
+            sx={{ position: 'absolute', bottom: 16, right: 16, color: '#d742f5' }}
+            icon={<SpeedDialIcon openIcon={<EditIcon />} />}
+        >
+            {actions.map((action) => (
+                <SpeedDialAction
+                    key={action.name}
+                    onClick={action.onClick}
+                    icon={action.icon}
+                    tooltipTitle={action.name}
+                />
+            ))}
+        </SpeedDial>
     );
 }
 
@@ -128,54 +127,35 @@ const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
 
 const TaskPage = () => {
+    const [tasks, setTasks] = useState<ITask[]>([])
+
+    useEffect(()=>{
+        
+    }, [])
 
     return (
         <>
-            <FullScreenImage />
+            <ScrollableScreenImage />
+            <MyAppbar currentTab={"task"} />
+
+            {/* list of tasks */}
             <Box sx={{
-                flexGrow: 1,
-                width: '100vw',
-                height: '100vh',
-                backdropFilter: 'blur(30px)',
-                backgroundColor: "rgba(255, 255, 255, 0.1)",
+                width: '70%',
+                margin: 'auto'
             }}>
-                <MyAppbar currentTab={"task"} />
+                <TaskCard color={hearRateCardColor}>
+                    <Box sx={{ display: 'flex', flexDirection: 'row', mt: 3, ml: 2 }}>
+                        <MonitorHeartTwoToneIcon />
+                        <Typography variant='h7' fontWeight={700} color='white'>Heart Rates</Typography>
+                        <Typography variant='h7' fontWeight={200} color='white' ml={10}>my task 123123</Typography>
+                        <Typography ml={10}>12/Nov/2024</Typography>
+                        <BpCheckbox {...label} color="secondary" sx={{ ml: 10, mb: 5, color: '#605EA1' }} />
+                    </Box>
 
-                {/* list of tasks */}
-                <Box
-                    sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        width: '70%',
-                        ml: 'auto',
-                        mr: 'auto',
-                        mt: 3,
-                    }}
-                >
-                    <TaskCard color={hearRateCardColor}>
-                        <Box sx={{ display: 'flex', flexDirection: 'row', mt: 3, ml: 2 }}>
-                            <MonitorHeartTwoToneIcon />
-                            <Typography variant='h7' fontWeight={700} color='white'>Heart Rates</Typography>
-                            <Typography variant='h7' fontWeight={200} color='white' ml={10}>my task 123123</Typography>
-                            <Typography ml={10}>12/Nov/2024</Typography>
-                            <BpCheckbox {...label} color="secondary" sx={{ ml: 10, mb: 5, color: '#605EA1' }} />
-                        </Box>
-
-                    </TaskCard>
-                    <TaskCard color={runCardColor}>
-                        <Box sx={{ display: 'flex', flexDirection: 'row', mt: 3, ml: 2 }}>
-                            <DirectionsRunIcon />
-                            <Typography variant='h7' fontWeight={700} color='white'>Run 10 miles</Typography>
-                            <Typography variant='h7' fontWeight={200} color='white' ml={10}>my task 123123</Typography>
-                            <Typography ml={10}>20/Nov/2024</Typography>
-                            <BpCheckbox {...label} sx={{ ml: 10, mb: 5, color: '#7ED4AD', position: 'end' }} />
-                        </Box>
-
-                    </TaskCard>
-
-                </Box>
-                <OpenIconSpeedDial />
+                </TaskCard>
+                
             </Box>
+            <OpenIconSpeedDial />
         </>
     )
 
