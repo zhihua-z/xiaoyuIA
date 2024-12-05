@@ -44,7 +44,7 @@ const MyDiscovery = () => {
                     data.map((item, index) => {
                         if (index % 2 == 0)
                             return
-                        console.log(data)
+                        
                         return (
                             item.type === "blog" ? (
                                 <Card item={item} />

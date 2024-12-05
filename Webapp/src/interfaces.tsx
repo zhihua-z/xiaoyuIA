@@ -13,6 +13,6 @@ export interface ITask {
     TaskType: string;
     TaskName: string;
     TaskUser: string;
-    TaskCreateTime: Date;
-    TaskDeadline: Date;
+    TaskCreateTime: string;
+    TaskDeadline: string;
 }

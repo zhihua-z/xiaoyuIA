@@ -130,7 +130,7 @@ const TaskPage = () => {
     const [tasks, setTasks] = useState<ITask[]>([])
 
     useEffect(()=>{
-        
+        // this is where you will call get task to retrieve the list of tasks
     }, [])
 
     return (
@@ -143,6 +143,16 @@ const TaskPage = () => {
                 width: '70%',
                 margin: 'auto'
             }}>
+                {
+                    /* 
+                    tasks.map((item, index) => {
+                        return <TaskCard .... />
+                    })
+
+
+
+                    */
+                }
                 <TaskCard color={hearRateCardColor}>
                     <Box sx={{ display: 'flex', flexDirection: 'row', mt: 3, ml: 2 }}>
                         <MonitorHeartTwoToneIcon />
@@ -153,7 +163,6 @@ const TaskPage = () => {
                     </Box>
 
                 </TaskCard>
-                
             </Box>
             <OpenIconSpeedDial />
         </>
