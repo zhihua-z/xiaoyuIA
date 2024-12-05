@@ -9,7 +9,11 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
-
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DateField } from '@mui/x-date-pickers/DateField';
+import { Button } from '@mui/material';
 
 const internetRegisterUser = async (TaskType: string, TaskName: string, Deadline: string, navigate) => {
     const url = 'http://localhost:8000/api/task'
@@ -47,29 +51,33 @@ export const TaskInfo = () => {
     const [deadline, setDeadline] = useState('')
 
 
-    const [taskNameError, setUsernameError] = useState(false)
-    const [deadlineError, setPasswordError] = useState(false)
+    const [taskNameError, setTaskNameError] = useState(false)
+    const [deadlineError, setDeadlineError] = useState(false)
 
 
-    const [taskNameHelper, setUsernameHelper] = useState('')
-    const [deadlineHelper, setPasswordHelper] = useState('')
+    const [taskNameHelper, setTaskNameHelper] = useState('')
+    const [deadlineHelper, setDeadlineHelper] = useState('')
 
 
     const navigate = useNavigate()
 
     const handleRegister = () => {
-        setUsernameError(false)
-        setPasswordError(false)
+        setTaskNameError(false)
+        setDeadlineError(false)
 
-        setUsernameHelper('')
-        setPasswordHelper('')
+        setTaskNameHelper('')
+        setDeadlineHelper('')
 
 
         if (taskName.length === 0) {
-            setUsernameError(true)
-            setUsernameHelper('Username cannot be empty.')
+            setTaskNameError(true)
+            setTaskNameHelper('Task name cannot be empty.')
         }
-         
+        if (deadline.length === 0) {
+            setDeadlineError(true)
+            setDeadlineHelper('Task name cannot be empty.')
+        }
+
 
         internetRegisterUser(taskName, deadline, email, navigate)
 
@@ -106,22 +114,30 @@ export const TaskInfo = () => {
                         onChange={handleChange}
                         label="Type"
                     >
-                        <MenuItem>Strength training</MenuItem>
-                        <MenuItem>Cardio / Aerobic</MenuItem>
-                        <MenuItem>Stretches</MenuItem>
-                        <MenuItem>Gerneral / Others</MenuItem>
+                        <MenuItem value={10}>Strength training</MenuItem>
+                        <MenuItem value={11}>Cardio / Aerobic</MenuItem>
+                        <MenuItem value={12}>Stretches</MenuItem>
+                        <MenuItem value={13}>Gerneral / Others</MenuItem>
                     </Select>
                 </FormControl>
                 <TextField
                     required
                     id="outlined-required"
                     label="Task name"
-                    sx={{ height: 100, width: 250 }}
+                    sx={{ height: 100, width: 200 }}
                     value={taskName}
                     error={taskNameError}
                     helperText={taskNameHelper}
                     onChange={(e) => setTaskName(e.target.value)}
                 />
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DemoContainer components={['DateField']}>
+                        <DateField label="Choose Deadline" />
+                    </DemoContainer>
+                </LocalizationProvider>
+                <Button onClick={handleRegister} sx={{mt: 2}}>
+                    Create
+                </Button >
             </Box>
         </>
 
