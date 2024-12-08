@@ -14,50 +14,23 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateField } from '@mui/x-date-pickers/DateField';
 import { Button } from '@mui/material';
+import dayjs, { Dayjs } from 'dayjs';
+import useLocalStorage from '../utils/useLocalStorage';
+import { ITask } from '../interfaces';
+import { createNewTask } from '../utils/internetUtils';
 
-const internetRegisterUser = async (TaskType: string, TaskName: string, Deadline: string, navigate) => {
-    const url = 'http://localhost:8000/api/task'
-
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            TaskType: TaskType,
-            TaskName: TaskName,
-            Deadline: Deadline
-        })
-    })
-
-    if (!response.ok) {
-        throw "error"
-    }
-
-    const data = await response.json()
-    if (data.status == 'success') {
-        navigate('/task')
-    } else {
-        alert(data.status)
-    }
-
-    console.log(response.json())
-}
 
 export const TaskInfo = () => {
-    const { email, setEmail } = useContext(AppContext)
+    const [username, setUsername] = useLocalStorage("username", "")
     const [taskType, setTaskType] = useState('')
     const [taskName, setTaskName] = useState('')
-    const [deadline, setDeadline] = useState('')
-
+    const [deadline, setDeadline] = useState<Dayjs | null>(dayjs(Date()))
 
     const [taskNameError, setTaskNameError] = useState(false)
     const [deadlineError, setDeadlineError] = useState(false)
 
-
     const [taskNameHelper, setTaskNameHelper] = useState('')
     const [deadlineHelper, setDeadlineHelper] = useState('')
-
 
     const navigate = useNavigate()
 
@@ -68,18 +41,28 @@ export const TaskInfo = () => {
         setTaskNameHelper('')
         setDeadlineHelper('')
 
-
+        // validate error
         if (taskName.length === 0) {
             setTaskNameError(true)
             setTaskNameHelper('Task name cannot be empty.')
         }
-        if (deadline.length === 0) {
+        if (deadline === null || deadline.toString().length === 0) {
             setDeadlineError(true)
             setDeadlineHelper('Task name cannot be empty.')
         }
 
 
-        internetRegisterUser(taskName, deadline, email, navigate)
+        const task: ITask = {
+            TaskType: taskType,
+            TaskName: taskName,
+            TaskUser: username,
+            TaskCreateTime: Date(),
+            TaskDeadline: deadline === null ? "" : deadline.format('YYYY-MM-DD')
+        }
+
+
+        createNewTask(task, navigate)
+
 
     };
     const handleChange = (event: SelectChangeEvent) => {
@@ -114,10 +97,10 @@ export const TaskInfo = () => {
                         onChange={handleChange}
                         label="Type"
                     >
-                        <MenuItem value={10}>Strength training</MenuItem>
-                        <MenuItem value={11}>Cardio / Aerobic</MenuItem>
-                        <MenuItem value={12}>Stretches</MenuItem>
-                        <MenuItem value={13}>Gerneral / Others</MenuItem>
+                        <MenuItem value={'strength'}>Strength training</MenuItem>
+                        <MenuItem value={'cardio'}>Cardio / Aerobic</MenuItem>
+                        <MenuItem value={'stretches'}>Stretches</MenuItem>
+                        <MenuItem value={'general'}>Gerneral / Others</MenuItem>
                     </Select>
                 </FormControl>
                 <TextField
@@ -132,10 +115,15 @@ export const TaskInfo = () => {
                 />
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DemoContainer components={['DateField']}>
-                        <DateField label="Choose Deadline" />
+                        <DateField
+                            label="Choose Deadline"
+                            format='YYYY-MM-DD'
+                            value={deadline}
+                            onChange={(newValue) => setDeadline(newValue)}
+                        />
                     </DemoContainer>
                 </LocalizationProvider>
-                <Button onClick={handleRegister} sx={{mt: 2}}>
+                <Button onClick={handleRegister} sx={{ mt: 2 }}>
                     Create
                 </Button >
             </Box>

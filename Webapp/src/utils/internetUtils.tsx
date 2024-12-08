@@ -1,4 +1,4 @@
-import { IPost } from "../interfaces";
+import { IPost, ITask } from "../interfaces";
 
 export const postData = async (url: string, body: string) => {
     const response = await fetch(url, {
@@ -33,6 +33,27 @@ export const getData = async (url: string) => {
 
 
 
+export const createNewTask = async (task: ITask, navigate: any) => {
+    const url: string = 'http://localhost:8000/api/createTask'
+
+    const body = {
+        taskType: task.TaskType,
+        taskName: task.TaskName,
+        taskUser: task.TaskUser,
+        deadline: task.TaskDeadline
+    }
+
+    const data = await postData(url, JSON.stringify(body))
+
+    if (data['status'] === 'success')
+    {
+        navigate('/task')
+    }
+    else
+    {
+        alert(data['status'])
+    }
+}
 
 
 export const getInternetPosts = async (
