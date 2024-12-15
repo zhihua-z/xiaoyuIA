@@ -5,7 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 # Create your views here.
 
-from .models import Post, User, EmailUserVerification, PostUserLike, Task
+from .models import Post, User, EmailUserVerification, PostUserLike, Task, TaskType
 from .emailbot import sendVerification
 
 
@@ -50,7 +50,7 @@ def getPosts(request):
                 "url" : post.image,
                 "author" : post.author,
                 "postTime" : post.createdTime.strftime('%Y-%m-%d %H:%M'),
-                "type": post.postType,
+                "type": str(post.typename),
                 "likedCount": post.likedCount,
                 "userLiked": PostUserLike.objects.filter(user = user, post=post).exists()
             }
@@ -270,14 +270,15 @@ def createTask(request):
     if request.method == 'POST':
         data = json.loads(request.body.decode('utf-8'))
         try:
-            exists = Task.objects.get(taskName=data['taskname'])
+            exists = Task.objects.get(taskName=data['taskName'])
             if exists is not None:
                 response['status'] = 'task exists'
         except Task.DoesNotExist:
+            typename = TaskType.objects.get(typename=data['taskType'])
             t = Task()
-            t.taskType = data['task type']
-            t.taskName = data['taskname']
-            t.taskUser = data['task user']
+            t.typename = typename
+            t.taskName = data['taskName']
+            t.taskUser = data['taskUser']
             t.taskCreateTime = timezone.now()
             t.taskDeadline = data['deadline']
             t.save()
