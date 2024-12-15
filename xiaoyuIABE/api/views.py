@@ -15,6 +15,9 @@ def index(request):
 def sortByTime(item):
     return item['postTime']
 
+def sortByTaskCreateTime(item):
+    return item['taskCreateTime']
+
 @csrf_exempt
 def getPosts(request):
     
@@ -299,34 +302,29 @@ def getTask(request):
     
     if request.method == 'POST':
         data = json.loads(request.body.decode('utf-8'))
-        taskName = data['taskname']
-        
-        if taskName is None or taskName == '':
-            taskName = 'heizi'
-        
-        print(f'||||||||{taskName}|||||||')
+
+        username = data['username']
         
         
         # ╭──────────────────────────────────────────────────────────────╮
         # │                        Check db logic                        │
         # ╰──────────────────────────────────────────────────────────────╯
-        task = Task.objects.all()
-        taskName = Task.objects.get(taskName=taskName)
+        tasks = Task.objects.filter(taskUser=username)
         Tasks_list = []
         response = {}
 
-        for Tasks in task:
+        for task in tasks:
             Tasks_data = {
-                "id": Tasks.id,
-                "Type" : Tasks.taskType,
-                "name" : Tasks.taskName,
-                "user" : Tasks.taskUser,
-                "taskCreateTime" : Tasks.taskCreateTime.strftime('%Y-%m-%d %H:%M'),
-                "taskDeadline" : Tasks.taskDeadline.strftime('%Y-%m-%d %H:%M'),
+                "id": task.id,
+                "Type" : str(task.typename),
+                "name" : task.taskName,
+                "user" : task.taskUser,
+                "taskCreateTime" : task.taskCreateTime.strftime('%Y-%m-%d %H:%M'),
+                "taskDeadline" : task.taskDeadline.strftime('%Y-%m-%d %H:%M'),
             }
             Tasks_list.append(Tasks_data)
-        Tasks_list.sort(key=sortByTime, reverse=True)
-
+        Tasks_list.sort(key=sortByTaskCreateTime, reverse=True)
+        response['status'] = 'success'
         response['task'] = Tasks_list
             
     else:

@@ -19,6 +19,9 @@ import NoteAddIcon from '@mui/icons-material/NoteAdd';
 import SettingsIcon from '@mui/icons-material/Settings';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import { ITask } from '../interfaces';
+import useLocalStorage from '../utils/useLocalStorage';
+
+import { getListOfTasks } from '../utils/internetUtils';
 
 const BpIcon = styled('span')(({ theme }) => ({
     borderRadius: 3,
@@ -128,9 +131,10 @@ const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
 const TaskPage = () => {
     const [tasks, setTasks] = useState<ITask[]>([])
+    const [username, setUsername] = useLocalStorage("username", "")
 
     useEffect(()=>{
-        
+        getListOfTasks(username, setTasks)
     }, [])
 
     return (
@@ -143,7 +147,12 @@ const TaskPage = () => {
                 width: '70%',
                 margin: 'auto'
             }}>
-                <TaskCard color={hearRateCardColor}>
+                {
+                    tasks.map((item, index) => {
+                        return <TaskCard key={index} item={item} />
+                    })
+                }
+                {/* <TaskCard color={hearRateCardColor}>
                     <Box sx={{ display: 'flex', flexDirection: 'row', mt: 3, ml: 2 }}>
                         <MonitorHeartTwoToneIcon />
                         <Typography variant='h7' fontWeight={700} color='white'>Heart Rates</Typography>
@@ -152,7 +161,7 @@ const TaskPage = () => {
                         <BpCheckbox {...label} color="secondary" sx={{ ml: 10, mb: 5, color: '#605EA1' }} />
                     </Box>
 
-                </TaskCard>
+                </TaskCard> */}
                 
             </Box>
             <OpenIconSpeedDial />

@@ -92,6 +92,19 @@ export const setInternetLiked = async (
     }
 }
 
+export const getListOfTasks = async (username: string, setTasks: any) => {
+    const url = 'http://localhost:8000/api/getTask'
+    const body = {
+        username: username
+    }
+
+    const data = await postData(url, JSON.stringify(body))  
+    
+    if (data.status == 'success') {
+        setTasks(data.task)
+    }
+}
+
 // export const countLike = async (postId: number, updateData: React.Dispatch<React.SetStateAction<IPost[]>>) => {
 //     try {
 //         const response = await fetch('/api/post/', {
