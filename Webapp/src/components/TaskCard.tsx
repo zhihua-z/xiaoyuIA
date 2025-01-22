@@ -13,6 +13,9 @@ const TaskCard = ({ item }: {item: ITask}) => {
     const [deadline, setDeadline] = useLocalStorage("deadline", "")
     const navigate = useNavigate()
 
+    console.log('--=-=-=-=-=-=')
+    console.log(item)
+
     return (
         <Paper
             square={false}
@@ -25,11 +28,11 @@ const TaskCard = ({ item }: {item: ITask}) => {
             }}
         >
             <CardActionArea onClick={() => { navigate('/detail') }}>
-                <Box id={'display_caption'} sx={{ ml: 0.5, mr: 0.5 }}>
-                    <Typography fontSize={16} fontWeight={600}>{item.TaskName}</Typography>
+                <Box id={'display_caption'} sx={{ m: 0.5 }}>
+                    <Typography fontSize={16} fontWeight={600}>{item.name}</Typography>
                     <Box sx={{ flex: 1, display: 'flex', flexDirection: 'row' }} justifyContent={'space-between'}>
-                        <Typography fontSize={12} fontWeight={300} sx={{ mt: 1 }}>{item.TaskCreateTime}</Typography>
-                        <Typography fontSize={12} fontWeight={300} sx={{ mt: 1, ml: 1 }}>{item.TaskDeadline}</Typography>
+                        <Typography fontSize={12} fontWeight={300} sx={{ mt: 1 }}>{item.taskCreateTime}</Typography>
+                        <Typography fontSize={12} fontWeight={300} sx={{ mt: 1, ml: 1 }}>{item.taskDeadline}</Typography>
 
                     </Box>
                 </Box>
