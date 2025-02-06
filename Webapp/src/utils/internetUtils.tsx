@@ -101,6 +101,8 @@ export const getListOfTasks = async (username: string, setTasks: any) => {
     const data = await postData(url, JSON.stringify(body))  
     
     if (data.status == 'success') {
+        console.log('=-=-=-=-=')
+        console.log(data.task)
         setTasks(data.task)
     }
 }

@@ -9,12 +9,8 @@ import useLocalStorage from '../utils/useLocalStorage';
 
 
 const TaskCard = ({ item }: {item: ITask}) => {
-    console.log("here",item)
     const [deadline, setDeadline] = useLocalStorage("deadline", "")
     const navigate = useNavigate()
-
-    console.log('--=-=-=-=-=-=')
-    console.log(item)
 
     return (
         <Paper

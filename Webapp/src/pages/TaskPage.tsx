@@ -22,6 +22,7 @@ import { ITask } from '../interfaces';
 import useLocalStorage from '../utils/useLocalStorage';
 
 import { getListOfTasks } from '../utils/internetUtils';
+import Calendar from '../components/Calendar';
 
 const BpIcon = styled('span')(({ theme }) => ({
     borderRadius: 3,
@@ -141,6 +142,7 @@ const TaskPage = () => {
         <>
             <ScrollableScreenImage />
             <MyAppbar currentTab={"task"} />
+            <Calendar />
 
             {/* list of tasks */}
             <Box sx={{
