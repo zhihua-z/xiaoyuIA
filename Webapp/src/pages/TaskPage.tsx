@@ -16,8 +16,6 @@ import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import SpeedDialAction from '@mui/material/SpeedDialAction';
 import EditIcon from '@mui/icons-material/Edit';
 import NoteAddIcon from '@mui/icons-material/NoteAdd';
-import SettingsIcon from '@mui/icons-material/Settings';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import { ITask } from '../interfaces';
 import useLocalStorage from '../utils/useLocalStorage';
 
@@ -72,8 +70,6 @@ function BpCheckbox(props: CheckboxProps) {
 const OpenIconSpeedDial = () => {
     const navigate = useNavigate()
     const actions = [
-        { icon: <SettingsIcon />, name: 'Manage' },
-        { icon: <CalendarMonthIcon />, name: 'Show Calendar' },
         { icon: <NoteAddIcon />, name: 'Add Task', onClick: () => navigate('/createtask') },
     ];
     return (
