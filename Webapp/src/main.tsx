@@ -1,4 +1,4 @@
-import { StrictMode, createContext, useContext, useState } from 'react'
+import { StrictMode, createContext, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 
@@ -10,7 +10,6 @@ import SettingPage from './pages/SettingPage'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
 import CreateUserPage from './pages/CreateUserPage'
-import MessagePage from './pages/MessagePage'
 import MePage from './pages/MePage'
 import CreateTaskPage from './pages/CreateTaskPage'
 
@@ -53,10 +52,6 @@ const router = createBrowserRouter([
     {
         path: "/createuser",
         element: <CreateUserPage />
-    },
-    {
-        path: "/messages",
-        element: <MessagePage />
     },
     {
         path: "/me",

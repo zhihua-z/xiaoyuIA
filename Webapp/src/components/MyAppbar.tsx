@@ -60,7 +60,6 @@ const MyAppbar = ({ currentTab }) => {
                             'aria-labelledby': 'basic-button',
                         }}
                     >
-                        <MenuItem onClick={() => { navigate('/messages') }}>Message</MenuItem>
                         <MenuItem onClick={() => { navigate('/setting') }}>Setting</MenuItem>
                         <MenuItem onClick={() => { navigate('/') }}>Logout</MenuItem>
                     </Menu>
@@ -87,7 +86,7 @@ const MyAppbar = ({ currentTab }) => {
                         />
                     </Box>
                     <Button onClick={() => { navigate('/me') }}>
-                        <Avatar sx={{ bgcolor: deepOrange[500] }}>M</Avatar>
+                        <Avatar sx={{ bgcolor: deepOrange[500] }}></Avatar>
                     </Button>
                 </Toolbar>
             </AppBar >

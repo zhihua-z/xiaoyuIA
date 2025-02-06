@@ -10,9 +10,10 @@ export interface IPost {
 }
 
 export interface ITask {
-    TaskType: string;
-    TaskName: string;
-    TaskUser: string;
-    TaskCreateTime: Date;
-    TaskDeadline: Date;
+    id: number;
+    type: string;
+    name: string;
+    user: string;
+    taskCreateTime: Date;
+    taskDeadline: Date;
 }

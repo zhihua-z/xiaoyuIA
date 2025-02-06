@@ -295,9 +295,7 @@ def createTask(request):
     
     return HttpResponse(response)
 
-@csrf_exempt
-def getTask(request):
-    
+def getTaskByCriteria(request, completed):
     response = {}
     
     if request.method == 'POST':
@@ -309,7 +307,7 @@ def getTask(request):
         # ╭──────────────────────────────────────────────────────────────╮
         # │                        Check db logic                        │
         # ╰──────────────────────────────────────────────────────────────╯
-        tasks = Task.objects.filter(taskUser=username)
+        tasks = Task.objects.filter(taskUser=username, completed=completed)
         Tasks_list = []
         response = {}
 
@@ -333,7 +331,40 @@ def getTask(request):
     # force our return type to be application/json
     response = json.dumps(response)
     
-    print('-------------')
-    print(response)
+    return HttpResponse(response)
+
+@csrf_exempt
+def getTask(request):
+    return getTaskByCriteria(request=request, completed=False)
+    
+
+@csrf_exempt
+def getHistoricalTask(request):
+    return getTaskByCriteria(request=request, completed=True)
+
+
+@csrf_exempt
+def setTaskComplete(request):
+    response = {}
+
+    if request.method == 'POST':
+        data = json.loads(request.body.decode('utf-8'))
+        taskId = data['taskId']
+        
+        try:
+            task = Task.objects.get(id=taskId)
+            
+            task.completed = True
+            task.completedDateTime = timezone.now()
+            task.save()
+            
+            response['status'] = 'success'
+        except Task.DoesNotExist:
+            response['status'] = 'task not exists'
+    else:
+        response['status'] = 'method not allowed'
+    
+    # force our return type to be application/json
+    response = json.dumps(response)
     
     return HttpResponse(response)

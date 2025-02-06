@@ -107,6 +107,19 @@ export const getListOfTasks = async (username: string, setTasks: any) => {
     }
 }
 
+export const setTaskCompleted = async (taskId: number, removeTaskFromList: any) => {
+    const url = 'http://localhost:8000/api/setTaskComplete'
+    const body = {
+        taskId: taskId
+    }
+
+    const data = await postData(url, JSON.stringify(body))
+
+    if (data.status == 'success') {
+        removeTaskFromList(taskId)
+    }
+}
+
 // export const countLike = async (postId: number, updateData: React.Dispatch<React.SetStateAction<IPost[]>>) => {
 //     try {
 //         const response = await fetch('/api/post/', {

@@ -46,6 +46,8 @@ class Task(models.Model):
     taskUser = models.CharField(max_length=50)
     taskCreateTime = models.DateTimeField()
     taskDeadline = models.DateTimeField()
+    completed = models.BooleanField(default=False)
+    completedDateTime = models.DateTimeField()
     
     def __str__(self):
         return f'{self.typename} - {self.taskName} for {self.taskUser} due on {self.taskDeadline}'

@@ -130,6 +130,12 @@ const TaskPage = () => {
     const [tasks, setTasks] = useState<ITask[]>([])
     const [username, setUsername] = useLocalStorage("username", "")
 
+    // filter off the task with this ID, set tasks to new list
+    const removeTaskFromList = (taskId: number) => {
+        const leftovers = tasks.filter((task) => task.id !== taskId)
+        setTasks(leftovers)
+    }
+
     useEffect(()=>{
         getListOfTasks(username, setTasks)
     }, [])
@@ -147,7 +153,7 @@ const TaskPage = () => {
             }}>
                 {
                     tasks.map((item, index) => {
-                        return <TaskCard key={index} item={item} />
+                        return <TaskCard key={index} item={item} removeTaskFromList={removeTaskFromList}/>
                     })
                 }
                 {/* <TaskCard color={hearRateCardColor}>

@@ -6,9 +6,11 @@ import CardActionArea from '@mui/material/CardActionArea';
 import { useNavigate } from 'react-router-dom';
 import { ITask } from "../interfaces";
 import useLocalStorage from '../utils/useLocalStorage';
+import { Button } from '@mui/material';
+import { setTaskCompleted } from '../utils/internetUtils';
 
 
-const TaskCard = ({ item }: {item: ITask}) => {
+const TaskCard = ({ item, removeTaskFromList }: {item: ITask, removeTaskFromList: any}) => {
     const [deadline, setDeadline] = useLocalStorage("deadline", "")
     const navigate = useNavigate()
 
@@ -23,16 +25,17 @@ const TaskCard = ({ item }: {item: ITask}) => {
                 overflow: 'hidden'
             }}
         >
-            <CardActionArea onClick={() => { navigate('/detail') }}>
-                <Box id={'display_caption'} sx={{ m: 0.5 }}>
+            <Box id={'display_caption'} sx={{ m: 0.5 }}>
+                <Box sx={{ flex: 1, display: 'flex', flexDirection: 'row' }} justifyContent={'space-between'}>
                     <Typography fontSize={16} fontWeight={600}>{item.name}</Typography>
-                    <Box sx={{ flex: 1, display: 'flex', flexDirection: 'row' }} justifyContent={'space-between'}>
-                        <Typography fontSize={12} fontWeight={300} sx={{ mt: 1 }}>{item.taskCreateTime}</Typography>
-                        <Typography fontSize={12} fontWeight={300} sx={{ mt: 1, ml: 1 }}>{item.taskDeadline}</Typography>
-
-                    </Box>
+                    <Button onClick={() => {setTaskCompleted(item.id, removeTaskFromList)}}>Complete</Button>
                 </Box>
-            </CardActionArea>
+                <Box sx={{ flex: 1, display: 'flex', flexDirection: 'row' }} justifyContent={'space-between'}>
+                    <Typography fontSize={12} fontWeight={300} sx={{ mt: 1 }}>{item.taskCreateTime}</Typography>
+                    <Typography fontSize={12} fontWeight={300} sx={{ mt: 1, ml: 1 }}>{item.taskDeadline}</Typography>
+
+                </Box>
+            </Box>
         </Paper>
     )
 }
