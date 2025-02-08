@@ -13,7 +13,7 @@ import LocalFireDepartmentTwoToneIcon from '@mui/icons-material/LocalFireDepartm
 import MonitorHeartTwoToneIcon from '@mui/icons-material/MonitorHeartTwoTone';
 import { LineChart } from '@mui/x-charts/LineChart';
 import { PieChart } from '@mui/x-charts/PieChart';
-
+import TextField from '@mui/material/TextField';
 import FullScreenImage from '../components/FullScreenImage';
 import DataCard from '../components/DataCard';
 import { runCardColor, waterCardColor, calorieCardColor, hearRateCardColor } from '../utils/colors';
@@ -255,14 +255,54 @@ const MePage = () => {
                     }}
                 >
                     <DataCard color={'#fe7445'}>
-                        
+                        <Box sx={{
+                            mt: 7,
+                            position: 'relative',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}>
+                            <Typography>Enter water intake</Typography>
+                            <TextField
+                                required
+                                id="outlined-required"
+                            />
+                        </Box>
 
                     </DataCard>
                     <DataCard color={'#fa5b7f'}>
-                        
+                        <Box sx={{
+                            mt: 7,
+                            position: 'relative',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}>
+                            <Typography>Enter calories intake</Typography>
+                            <TextField
+                                required
+                                id="outlined-required"
+                            />
+                        </Box>
                     </DataCard>
                     <DataCard color={'#8675fe'}>
-                        
+                        <Box sx={{
+                            mt: 7,
+                            position: 'relative',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}>
+                            <Typography>Enter heart rate</Typography>
+                            <TextField
+                                required
+                                id="outlined-required"
+                            />
+                        </Box>
+
 
                     </DataCard>
                 </Box>
