@@ -6,7 +6,6 @@ import DiscoveryPage from './pages/DiscoveryPage'
 import TaskPage from './pages/TaskPage'
 import PostPage from './pages/postPage'
 import DashboardPage from './pages/DashboardPage'
-import SettingPage from './pages/SettingPage'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
 import CreateUserPage from './pages/CreateUserPage'
@@ -36,10 +35,6 @@ const router = createBrowserRouter([
     {
         path: "/dashboard",
         element: <DashboardPage />
-    },
-    {
-        path: "/setting",
-        element: <SettingPage />
     },
     {
         path: "/",

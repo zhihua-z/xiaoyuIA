@@ -1,11 +1,14 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
+from datetime import timedelta
+
+import pytz
 # Create your views here.
 
-from .models import Post, User, EmailUserVerification, PostUserLike, Task, TaskType
+from .models import HealthData, Post, User, EmailUserVerification, PostUserLike, Task, TaskType
 from .emailbot import sendVerification
 
 
@@ -29,13 +32,9 @@ def getPosts(request):
         # │                     Check for form data                      │
         # ╰──────────────────────────────────────────────────────────────╯
         data = json.loads(request.body.decode('utf-8'))
-        username = data['username']
-        
-        if username is None or username == '':
-            username = 'heizi'
-        
-        print(f'||||||||{username}|||||||')
-        
+        print('-0----------')
+        print(data.get('username'))
+        username = data.get('username')
         
         # ╭──────────────────────────────────────────────────────────────╮
         # │                        Check db logic                        │
@@ -58,6 +57,7 @@ def getPosts(request):
                 "userLiked": PostUserLike.objects.filter(user = user, post=post).exists()
             }
             post_list.append(post_data)
+        print(post_list)
 #  "userLiked": PostUserLike.objects.filter(user=user, post=post).exists()
         
         post_list.sort(key=sortByTime, reverse=True)
@@ -70,9 +70,6 @@ def getPosts(request):
     # force our return type to be application/json
     response = json.dumps(response)
     
-    print('-------------')
-    print(response)
-    
     return HttpResponse(response)
 
 @csrf_exempt
@@ -80,7 +77,6 @@ def login(request):
     response = {}
     
     if request.method == 'POST':
-        print(request.body)
         # ╭──────────────────────────────────────────────────────────────╮
         # │                     Check for form data                      │
         # ╰──────────────────────────────────────────────────────────────╯
@@ -202,8 +198,6 @@ def like(request):
         un = data['username']
         action = data['action']
         
-        print(request.body)
-        
         # 0. get user
         user: User = None
         post: Post = None
@@ -284,6 +278,7 @@ def createTask(request):
             t.taskUser = data['taskUser']
             t.taskCreateTime = timezone.now()
             t.taskDeadline = data['deadline']
+            t.duration = data['duration']
             t.save()
             
             response['status'] = 'success'
@@ -368,3 +363,287 @@ def setTaskComplete(request):
     response = json.dumps(response)
     
     return HttpResponse(response)
+
+def getMeHealthData(user, current_date):
+    
+    total_water_intake = 0
+    total_calorie_intake = 0
+    average_heartrate = 0
+    total_heartcount = 0
+    total_run_distance = 0
+    
+    
+    health_data = HealthData.objects.filter(user=user, date=current_date)
+
+    if not health_data.exists():
+        return {
+            'runDistance': 0,
+            'water': 0,
+            'calorie': 0,
+            'heartrate': 0
+        }
+    else:
+        for item in health_data:
+            if item.datatype == 'run':
+                total_run_distance += item.run_distance
+            if item.datatype == 'water':
+                total_water_intake += item.water_intake
+            elif item.datatype == 'calorie':
+                total_calorie_intake += item.calorie_intake
+            elif item.datatype == 'heartrate':
+                average_heartrate += item.heart_rate
+                total_heartcount += 1
+
+    if total_heartcount != 0:
+        average_heartrate = int(average_heartrate / total_heartcount)
+        
+    return {
+        'runDistance': round(total_run_distance, 1),
+        'water': total_water_intake,
+        'calorie': total_calorie_intake,
+        'heartrate': average_heartrate
+    }
+
+@csrf_exempt
+def getMePageData(request):
+    response = {}
+
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            username = data.get('username')
+            user = User.objects.get(username=username)
+            current_date = timezone.now().date()
+
+            result = getMeHealthData(user, current_date)
+            
+            if result is None:
+                response = {
+                    'status': 'failed',
+                    'total_run_distance_km': 0,
+                    'total_water_intake_ml': 0,
+                    'total_calorie_intake_kcal': 0,
+                    'average_heart_rate': 0
+                }
+            else:
+                print(result)
+                print('---=-=--=-=--=')
+                response = {
+                    'status': 'success',
+                    'total_run_distance_km': result['runDistance'],
+                    'total_water_intake_ml': result['water'],
+                    'total_calorie_intake_kcal': result['calorie'],
+                    'average_heart_rate': result['heartrate']
+                }
+            return JsonResponse(response)
+
+        except User.DoesNotExist:
+            return JsonResponse({'status': 'failed', 'message': 'User not found'}, status=404)
+        except json.JSONDecodeError:
+            return JsonResponse({'status': 'failed', 'message': 'Invalid JSON'}, status=400)
+
+    return JsonResponse({'status': 'method not allowed'}, status=405)
+
+@csrf_exempt
+def postMePageData(request):
+    response = {}
+    
+    total_water_intake = 0
+    total_calorie_intake = 0
+    average_heartrate = 0
+    total_heartcount = 0
+
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            username = data.get('username')
+            datatype = data.get('datatype')
+            data = data.get('data')
+            
+            user = User.objects.get(username=username)
+            current_date = timezone.now().date()
+            
+            healthData = HealthData()
+            healthData.user = user
+            healthData.date = current_date
+            healthData.datatype = datatype
+            
+            if datatype == 'run':
+                healthData.water_intake = 0
+                healthData.calorie_intake = 0
+                healthData.heart_rate = 0
+                healthData.run_distance = data
+            if datatype == 'water':
+                healthData.water_intake = data
+                healthData.calorie_intake = 0
+                healthData.heart_rate = 0
+                healthData.run_distance = 0
+            elif datatype == 'calorie':
+                healthData.water_intake = 0
+                healthData.calorie_intake = data
+                healthData.heart_rate = 0
+                healthData.run_distance = 0
+            elif datatype == 'heartrate':
+                healthData.water_intake = 0
+                healthData.calorie_intake = 0
+                healthData.heart_rate = data
+                healthData.run_distance = 0
+            healthData.save()
+            
+            
+            # after add new items, need to refresh data
+            result = getMeHealthData(user, current_date)
+            
+            if result is None:
+                response = {
+                    'status': 'failed',
+                    'total_run_distance_km': 0,
+                    'total_water_intake_ml': 0,
+                    'total_calorie_intake_kcal': 0,
+                    'average_heart_rate': 0
+                }
+            else:
+                response = {
+                    'status': 'success',
+                    'total_run_distance_km': result['runDistance'],
+                    'total_water_intake_ml': result['water'],
+                    'total_calorie_intake_kcal': result['calorie'],
+                    'average_heart_rate': result['heartrate']
+                }
+            return JsonResponse(response)
+
+        except User.DoesNotExist:
+            return JsonResponse({'status': 'failed', 'message': 'User not found'}, status=404)
+        except json.JSONDecodeError:
+            return JsonResponse({'status': 'failed', 'message': 'Invalid JSON'}, status=400)
+
+    return JsonResponse({'status': 'method not allowed'}, status=405)
+
+def getWorkdoneThatDay(user: User, date):
+    hours_completed = 0
+    
+    start_of_day = timezone.make_aware(timezone.datetime.combine(date, timezone.datetime.min.time()))
+    end_of_day = timezone.make_aware(timezone.datetime.combine(date, timezone.datetime.max.time()))
+    
+    health_data = Task.objects.filter(taskUser=user.username, completed=True, completedDateTime__range=(start_of_day, end_of_day))
+
+    if not health_data.exists():
+        hours_completed = 0
+    else:
+        for item in health_data:
+            hours_completed += item.duration
+    
+    return hours_completed
+
+@csrf_exempt
+def getWorkoutData(request):
+    response = {}
+
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            username = data.get('username')
+            user = User.objects.get(username=username)
+            sg_timezone = pytz.timezone('Asia/Singapore')
+            current_date = timezone.now().astimezone(sg_timezone).date()
+            
+            lastweek = [0, 0, 0, 0, 0, 0, 0]
+            thisweek = [0, 0, 0, 0, 0, 0, 0]
+            startDay = current_date - timedelta(days=7 + current_date.weekday())
+            
+            # calculate data for last week
+            for i in range(7):
+                lastweek[i] = getWorkdoneThatDay(user, startDay)
+                startDay = startDay + timedelta(days=1)
+            
+            # calculate data for this week
+            for i in range(current_date.weekday() + 1):
+                thisweek[i] = getWorkdoneThatDay(user, startDay)
+                startDay = startDay + timedelta(days=1)
+            
+            result = [
+                {
+                    'label': 'This Week',
+                    'data': thisweek,
+
+                },
+                {
+                    'label': 'Last Week',
+                    'data': lastweek,
+
+                },
+            ]
+            
+            response = {
+                'status': 'success',
+                'workoutData': result
+            }
+            return JsonResponse(response)
+
+        except User.DoesNotExist:
+            return JsonResponse({'status': 'failed', 'message': 'User not found'}, status=404)
+        except json.JSONDecodeError:
+            return JsonResponse({'status': 'failed', 'message': 'Invalid JSON'}, status=400)
+
+    return JsonResponse({'status': 'method not allowed'}, status=405)
+
+
+@csrf_exempt
+def getProgressData(request):
+    response = {}
+
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            username = data.get('username')
+            user = User.objects.get(username=username)
+            sg_timezone = pytz.timezone('Asia/Singapore')
+            current_date = timezone.now().astimezone(sg_timezone).date()
+            
+            strength = 0
+            cardio = 0
+            stretches = 0
+            general = 0
+            
+            # do calculations here
+    
+            start_of_day = timezone.make_aware(timezone.datetime.combine(current_date, timezone.datetime.min.time()))
+            end_of_day = timezone.make_aware(timezone.datetime.combine(current_date, timezone.datetime.max.time()))
+            
+            taskData = Task.objects.filter(taskUser=user.username, completed=True, completedDateTime__range=(start_of_day, end_of_day))
+
+            strength_type = TaskType.objects.get(typename='strength')
+            cardio_type = TaskType.objects.get(typename='cardio')
+            stretches_type = TaskType.objects.get(typename='stretches')
+            general_type = TaskType.objects.get(typename='general')
+
+            if taskData is not None:
+                for item in taskData:
+                    if item.typename == strength_type:
+                        strength += item.duration
+                    if item.typename == cardio_type:
+                        cardio += item.duration
+                    if item.typename == stretches_type:
+                        stretches += item.duration
+                    if item.typename == general_type:
+                        general += item.duration
+            
+            result = [
+                { 'id': 0, 'value': strength, 'label': 'Strength' },
+                { 'id': 1, 'value': cardio, 'label': 'Cardio' },
+                { 'id': 2, 'value': stretches, 'label': 'Streches' },
+                { 'id': 3, 'value': general, 'label': 'General' },
+            ]
+            
+            response = {
+                'status': 'success',
+                'progressData': result
+            }
+            return JsonResponse(response)
+
+        except User.DoesNotExist:
+            return JsonResponse({'status': 'failed', 'message': 'User not found'}, status=404)
+        except json.JSONDecodeError:
+            return JsonResponse({'status': 'failed', 'message': 'Invalid JSON'}, status=400)
+
+    return JsonResponse({'status': 'method not allowed'}, status=405)

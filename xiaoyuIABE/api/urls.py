@@ -13,5 +13,10 @@ urlpatterns = [
     path("like", view=views.like, name="like"),
     path("createTask", views.createTask, name="createTask"),
     path("getTask", views.getTask, name="getTask"),
-    path("setTaskComplete", views.setTaskComplete, name="setTaskComplete")
+    path("setTaskComplete", views.setTaskComplete, name="setTaskComplete"),
+    path("getMePageData", views.getMePageData, name="getMePageData"),
+    path("postMePageData", views.postMePageData, name="postMePageData"),
+    path("getWorkoutData", views.getWorkoutData, name="getWorkoutData"),
+    path("getProgressData", views.getProgressData, name="getProgressData")
+    
 ]

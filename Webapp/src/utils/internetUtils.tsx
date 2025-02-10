@@ -40,7 +40,8 @@ export const createNewTask = async (task: ITask, navigate: any) => {
         taskType: task.TaskType,
         taskName: task.TaskName,
         taskUser: task.TaskUser,
-        deadline: task.TaskDeadline
+        deadline: task.TaskDeadline,
+        duration: task.duration
     }
 
     const data = await postData(url, JSON.stringify(body))
@@ -101,7 +102,6 @@ export const getListOfTasks = async (username: string, setTasks: any) => {
     const data = await postData(url, JSON.stringify(body))  
     
     if (data.status == 'success') {
-        console.log('=-=-=-=-=')
         console.log(data.task)
         setTasks(data.task)
     }
@@ -120,37 +120,56 @@ export const setTaskCompleted = async (taskId: number, removeTaskFromList: any) 
     }
 }
 
-// export const countLike = async (postId: number, updateData: React.Dispatch<React.SetStateAction<IPost[]>>) => {
-//     try {
-//         const response = await fetch('/api/post/', {
-//             method: 'POST',
-//             body: JSON.stringify({
-//                 postId,
-//                 username: 'john_doe',
-//                 type: 'regular',
-//             })
-//         });
+export const getMePageData = async (username: string, setData: any) => {
+    const url = 'http://localhost:8000/api/getMePageData'
+    const body = {
+        username: username
+    }
 
-//         if (!response.ok) {
-//             throw new Error(`Http error! Status: ${response.status}`);
-//         }
+    const data = await postData(url, JSON.stringify(body))
 
-//         const data = await response.json();
-//         console.log(data);
+    if (data.status == 'success') {
+        setData(data)
+    }
+}
 
-//         if (data.status === 'success') {
-//             updateData((prevData) => {
-//                 return prevData.map((post) =>
-//                     post.id === postId
-//                         ? { ...post, likedCount: data.likedCount }
-//                         : post
-//                 );
-//             });
-//         } else {
-//             console.log('Error:', data.status);
-//         }
-//     } catch (error) {
+export const postMePageData = async (username: string, setData: any, datatype: string, data: number) => {
+    const url = 'http://localhost:8000/api/postMePageData'
+    const body = {
+        username: username,
+        datatype: datatype,
+        data: data
+    }
 
-//         console.error('Error while liking the post:', error);
-//     }
-// }
+    const response = await postData(url, JSON.stringify(body))
+
+    if (response.status == 'success') {
+        setData(response)
+    }
+}
+
+export const getWorkoutData = async (username: string, setData: any) => {
+    const url = 'http://localhost:8000/api/getWorkoutData'
+    const body = {
+        username: username
+    }
+
+    const response = await postData(url, JSON.stringify(body))
+
+    if (response.status == 'success') {
+        setData(response.workoutData)
+    }
+}
+
+export const getProgressData = async (username: string, setData: any) => {
+    const url = 'http://localhost:8000/api/getProgressData'
+    const body = {
+        username: username
+    }
+
+    const response = await postData(url, JSON.stringify(body))
+
+    if (response.status == 'success') {
+        setData(response.progressData)
+    }
+}

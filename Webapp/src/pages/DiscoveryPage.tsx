@@ -8,12 +8,11 @@ import VCard from '../components/VCard';
 import { IPost } from "../interfaces";
 
 import { getInternetPosts } from '../utils/internetUtils';
-
-import { AppContext } from '../main';
+import useLocalStorage from '../utils/useLocalStorage';
 
 const MyDiscovery = () => {
     
-    const {username} = useContext(AppContext)
+    const [username, setUsername] = useLocalStorage("username", "")
 
     useEffect(() => {
         getInternetPosts('http://localhost:8000/api/posts', username, setData)

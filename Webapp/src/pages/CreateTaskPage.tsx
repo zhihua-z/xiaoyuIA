@@ -29,14 +29,19 @@ export const TaskInfo = () => {
     const [taskNameError, setTaskNameError] = useState(false)
     const [deadlineError, setDeadlineError] = useState(false)
 
+    const [duration, setDuration] = useState('1.0')
+    const [durationError, setDurationError] = useState(false)
+
     const [taskNameHelper, setTaskNameHelper] = useState('')
     const [deadlineHelper, setDeadlineHelper] = useState('')
+    const [durationHelper, setDurationHelper] = useState('')
 
     const navigate = useNavigate()
 
-    const handleRegister = () => {
+    const handleCreate = () => {
         setTaskNameError(false)
         setDeadlineError(false)
+        setDurationError(false)
 
         setTaskNameHelper('')
         setDeadlineHelper('')
@@ -50,6 +55,10 @@ export const TaskInfo = () => {
             setDeadlineError(true)
             setDeadlineHelper('Task name cannot be empty.')
         }
+        if (duration === null || duration.toString().length === 0) {
+            setDurationError(true);
+            setDurationHelper('Duration cannot be empty.')
+        }
 
 
         const task: ITask = {
@@ -57,7 +66,8 @@ export const TaskInfo = () => {
             TaskName: taskName,
             TaskUser: username,
             TaskCreateTime: Date(),
-            TaskDeadline: deadline === null ? "" : deadline.format('YYYY-MM-DD')
+            TaskDeadline: deadline === null ? "" : deadline.format('YYYY-MM-DD'),
+            duration: duration
         }
 
 
@@ -113,6 +123,16 @@ export const TaskInfo = () => {
                     helperText={taskNameHelper}
                     onChange={(e) => setTaskName(e.target.value)}
                 />
+                <TextField
+                    required
+                    id="outlined-required"
+                    label="Expected Duration"
+                    sx={{ height: 100, width: 200 }}
+                    value={duration}
+                    error={durationError}
+                    helperText={durationHelper}
+                    onChange={(e) => setDuration(e.target.value)}
+                />
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DemoContainer components={['DateField']}>
                         <DateField
@@ -123,7 +143,7 @@ export const TaskInfo = () => {
                         />
                     </DemoContainer>
                 </LocalizationProvider>
-                <Button onClick={handleRegister} sx={{ mt: 2 }}>
+                <Button onClick={handleCreate} sx={{ mt: 2 }}>
                     Create
                 </Button >
             </Box>

@@ -60,7 +60,7 @@ const MyAppbar = ({ currentTab }) => {
                             'aria-labelledby': 'basic-button',
                         }}
                     >
-                        <MenuItem onClick={() => { navigate('/setting') }}>Setting</MenuItem>
+                        <MenuItem onClick={() => { navigate('/me') }}>Me</MenuItem>
                         <MenuItem onClick={() => { navigate('/') }}>Logout</MenuItem>
                     </Menu>
                     <Box sx={{ flex: 1, display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly' }}>

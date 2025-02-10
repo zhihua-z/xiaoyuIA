@@ -11,6 +11,7 @@ import CountrySelect from '../components/CountryList';
 import Link from '@mui/material/Link';
 
 import { AppContext } from '../main';
+import useLocalStorage from '../utils/useLocalStorage';
 
 const FullScreenImage: React.FC = () => {
     return (
@@ -67,7 +68,7 @@ const internetRegisterUser = async (username: string, password: string, email: s
 
     const data = await response.json()
     if (data.status == 'success') {
-        navigate('/dashboard')
+        navigate('/')
     } else {
         alert(data.status)
     }

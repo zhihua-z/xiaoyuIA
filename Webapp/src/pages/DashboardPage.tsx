@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import MyAppbar from '../components/MyAppbar';
@@ -17,149 +17,17 @@ import { PieChart } from '@mui/x-charts/PieChart';
 import FullScreenImage from '../components/FullScreenImage';
 import DataCard from '../components/DataCard';
 import { runCardColor, waterCardColor, calorieCardColor, hearRateCardColor } from '../utils/colors';
-
-const GraphCard = ({ color, children = null }) => {
-    return (
-        <Box
-            sx={{
-                width: '50%',
-                height: 250,
-                margin: 'auto',
-                borderRadius: 10
-            }}
-        >
-            <Box sx={{
-                height: '100%',
-                width: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center'
-            }}>
-                <Box
-                    sx={{
-                        background: color,
-                        height: '90%',
-                        width: '90%',
-                        margin: 'auto',
-                        borderRadius: 5,
-                        backgroundColor: 'rgba(0, 0, 0, 0.1)'
-                    }}
-                >
-                    {children}
-                </Box>
-            </Box>
-        </Box>
-    )
-}
-
-const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
-    width: 140,
-    height: 10,
-    borderRadius: 5,
-    [`&.${linearProgressClasses.colorPrimary}`]: {
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-        backdropFilter: 'blur(10px)'
-    },
-    [`& .${linearProgressClasses.bar}`]: {
-        borderRadius: 5,
-        backgroundColor: '#FFFFFF',
-    },
-}));
-
-const CircleGauge = () => {
-    return (
-        <>
-            <Box sx={{position: 'absolute'}}>
-                <Typography 
-                    fontWeight={600} 
-                    fontSize={26} 
-                    color='white'
-                    sx={{
-                        mt: 4.4,
-                        ml: 12.5
-                    }}
-                >
-                    60
-                </Typography>
-            </Box>
-            <Gauge
-                value={60}
-                cornerRadius="50%"
-                text={''}
-                sx={(theme) => ({
-                    margin: 'auto',
-                    width: '60%',
-                    height: '60%',
-                    // [`& .${gaugeClasses.valueText}`]: {
-                    //     fontSize: 25,
-                    //     color: theme.palette.common.white,
-                    // },
-                    [`& .${gaugeClasses.valueArc}`]: {
-                        fill: '#FFFFFF',
-                    },
-                    [`& .${gaugeClasses.referenceArc}`]: {
-                        fill: 'rgba(255, 255, 255, 0.1)',
-                        backdropFilter: 'blur(10px)',
-                    },
-                })}
-            />
-        </>
-
-
-    )
-}
-
-const MyGauge = () => {
-    return (
-        <Gauge
-            cornerRadius="50%"
-            value={60}
-            startAngle={-90}
-            endAngle={90}
-            text={"Normal"}
-            sx={(theme) => ({
-                width: '70%',
-                height: '70%',
-                [`& .${gaugeClasses.valueText}`]: {
-                    fontSize: 15,
-                },
-                [`& .${gaugeClasses.valueArc}`]: {
-                    fill: '#FFFFFF',
-                },
-                [`& .${gaugeClasses.referenceArc}`]: {
-                    fill: 'rgba(255, 255, 255, 0.1)',
-                    backdropFilter: 'blur(10px)',
-                },
-                ml: 'auto',
-                mr: 'auto',
-            })}
-        />
-    )
-}
-
-const BasicLineChart = () => {
-    return (
-        <LineChart
-            xAxis={[{ data: [60, 70, 80, 90, 100, 110] }]}
-            series={[
-                {
-                    data: [100, 88, 70, 72, 90, 85],
-                },
-            ]}
-            width={230}
-            height={150}
-            sx={{
-                display: 'flex',
-                mr: 5,
-            }}
-        />
-    );
-}
-
+import { getMePageData, getProgressData, getWorkoutData } from '../utils/internetUtils';
+import useLocalStorage from '../utils/useLocalStorage';
+import GraphCard from '../components/GraphCard';
+import { BorderLinearProgress, CircleGauge, MyGauge } from '../components/DataDisplayGraphs';
 
 const DashboardPage = () => {
     const [seriesNb, setSeriesNb] = useState(2);
     const [suggestion, setSuggestion] = useState('eat more apple and orange')
+
+    const [data, setData] = useState({})
+    const [username, setUsername] = useLocalStorage("username", "")
 
     const handleSeriesNbChange = (event: Event, newValue: number | number[]) => {
         if (typeof newValue !== 'number') {
@@ -172,24 +40,37 @@ const DashboardPage = () => {
         fade: 'global',
     } as const;
 
-    const series = [
+    const [series, setSeries] = useState([
         {
             label: 'This Week',
             data: [
-                3, 10, 2, 7, 15, 10, 4
+                0, 0, 0, 0, 0, 0, 0
             ],
 
         },
         {
             label: 'Last Week',
             data: [
-                2, 4, 13, 11, 8, 1, 5
+                0, 0, 0, 0, 0, 0, 0
             ],
 
         },
+    ])
+
+    const [progressData, setProgressData] = useState([
+        { id: 0, value: 2, label: 'Strength' },
+        { id: 1, value: 3, label: 'Cardio' },
+        { id: 2, value: 5, label: 'Streches' },
+        { id: 2, value: 0, label: 'General' },
+    ])
 
 
-    ].map((s) => ({ ...s, highlightScope }));
+    useEffect(() => {
+        getMePageData(username, setData)
+        getWorkoutData(username, setSeries)
+        getProgressData(username, setProgressData)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     return (
         <>
@@ -217,15 +98,15 @@ const DashboardPage = () => {
                     <DataCard color={runCardColor}>
                         <Box sx={{ display: 'flex', flexDirection: 'row', mt: 2 }}>
                             <DirectionsRunIcon />
-                            <Typography variant='h7' fontWeight={700} color='white'>Run distance</Typography>
+                            <Typography variant='h7' fontWeight={700} color='white'>Run distance: {data.total_run_distance_km ?? 0} km</Typography>
                         </Box>
                         <Box sx={{ display: 'flex', flexDirection: 'row', mt: 1, ml: 3 }}>
-                            <Typography variant='h5' fontWeight={700} color='white'>250</Typography>
-                            <Typography variant='h5' fontWeight={200} color='white'>km</Typography>
+                            <Typography variant='h5' fontWeight={700} color='white'>{data.total_run_distance_km ?? 0} </Typography>
+                            <Typography variant='h5' fontWeight={200} color='white' sx={{ml: 1}}>km</Typography>
                         </Box>
                         <BorderLinearProgress
                             variant="determinate"
-                            value={50}
+                            value={(data.total_run_distance_km ?? 0) / 5.0 * 100 > 100 ? 100 : (data.total_run_distance_km ?? 0) / 5.0 * 100}
                             sx={{
                                 mt: 4, ml: 'auto',
                                 mr: 'auto',
@@ -234,25 +115,25 @@ const DashboardPage = () => {
                     <DataCard color={'#fe7445'}>
                         <Box sx={{ display: 'flex', flexDirection: 'row', mt: 2 }}>
                             <WaterDropTwoToneIcon />
-                            <Typography variant='h7' fontWeight={700} color='white'>Water</Typography>
+                            <Typography variant='h7' fontWeight={700} color='white'>Water: {data.total_water_intake_ml ?? 0} ml</Typography>
                         </Box>
-                        <CircleGauge />
-
+                        <CircleGauge waterIntake={data.total_water_intake_ml ?? 0} suggestedWaterIntake={2000}/>
                     </DataCard>
+
                     <DataCard color={'#fa5b7f'}>
                         <Box sx={{ display: 'flex', flexDirection: 'row', mt: 2 }}>
                             <LocalFireDepartmentTwoToneIcon />
-                            <Typography variant='h7' fontWeight={700} color='white'>Calories</Typography>
+                            <Typography variant='h7' fontWeight={700} color='white'>Calories: {data.total_calorie_intake_kcal ?? 0} kcal</Typography>
                         </Box>
-                        <MyGauge />
-
+                        <MyGauge intake={data.total_calorie_intake_kcal ?? 0} suggestedIntake={2000}/>
                     </DataCard>
+                    
                     <DataCard color={'#8675fe'}>
                         <Box sx={{ display: 'flex', flexDirection: 'row', mt: 2 }}>
                             <MonitorHeartTwoToneIcon />
-                            <Typography variant='h7' fontWeight={700} color='white'>Heart Rates</Typography>
+                            <Typography variant='h7' fontWeight={700} color='white'>Heart Rates: {data.average_heart_rate ?? 0} bpm</Typography>
                         </Box>
-                        <BasicLineChart />
+                        <MyGauge intake={data.average_heart_rate ?? 0} suggestedIntake={180}/>
 
                     </DataCard>
                 </Box>
@@ -272,9 +153,10 @@ const DashboardPage = () => {
                     <GraphCard color={'#FFFFFF'}>
                         <Typography fontWeight={600} fontSize={24} sx={{ ml: 2 }}>Workout hour</Typography>
                         <BarChart
-                            xAxis={[{ scaleType: 'band', data: ['day1', 'day2', 'day3', 'day4', 'day5', 'day6', 'day7'] }]}
+                            xAxis={[{ scaleType: 'band', data: ['Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat', 'Sun'] }]}
                             height={150}
                             series={series
+                                .map((s) => ({ ...s, highlightScope }))
                                 .slice(0, seriesNb)
                                 .map((s) => ({ ...s, data: s.data.slice(0, 7) }))}
 
@@ -294,11 +176,7 @@ const DashboardPage = () => {
                             <PieChart
                                 series={[
                                     {
-                                        data: [
-                                            { id: 0, value: 30, label: 'Lift Weight' },
-                                            { id: 1, value: 15, label: 'Running' },
-                                            { id: 2, value: 10, label: 'Streching' },
-                                        ],
+                                        data: progressData,
                                         innerRadius: 30,
                                         paddingAngle: 5,
                                         cornerRadius: 5,
@@ -314,21 +192,6 @@ const DashboardPage = () => {
                     </GraphCard>
 
                 </Box>
-
-                {/* recommendation */}
-                <Box
-                    sx={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        width: '70%',
-                        ml: 'auto',
-                        mr: 'auto',
-                        mt: 3,
-                    }}
-                >
-
-                </Box>
-
             </Box>
         </>
     )

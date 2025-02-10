@@ -144,7 +144,6 @@ const TaskPage = () => {
         <>
             <ScrollableScreenImage />
             <MyAppbar currentTab={"task"} />
-            <Calendar />
 
             {/* list of tasks */}
             <Box sx={{

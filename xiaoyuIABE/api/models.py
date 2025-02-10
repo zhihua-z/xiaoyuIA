@@ -45,9 +45,10 @@ class Task(models.Model):
     taskName = models.CharField(max_length=100)
     taskUser = models.CharField(max_length=50)
     taskCreateTime = models.DateTimeField()
+    duration = models.FloatField(help_text='amount of time to complete in hours')
     taskDeadline = models.DateTimeField()
     completed = models.BooleanField(default=False)
-    completedDateTime = models.DateTimeField()
+    completedDateTime = models.DateTimeField(null=True, blank=True, default=None)
     
     def __str__(self):
         return f'{self.typename} - {self.taskName} for {self.taskUser} due on {self.taskDeadline}'
@@ -63,3 +64,15 @@ class TaskType(models.Model):
     
     def __str__(self):
         return self.typename
+    
+class HealthData(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    date = models.DateField(auto_now_add=False)
+    datatype = models.CharField(max_length=10)
+    water_intake = models.IntegerField(help_text="Water intake in ml")
+    calorie_intake = models.IntegerField(help_text="Calorie intake in kcal")
+    heart_rate = models.IntegerField(help_text="Average heart rate in bpm")
+    run_distance = models.FloatField()
+
+    def __str__(self):
+        return f"{self.user.username} - {self.date}"

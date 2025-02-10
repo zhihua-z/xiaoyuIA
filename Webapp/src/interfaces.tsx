@@ -16,4 +16,5 @@ export interface ITask {
     user: string;
     taskCreateTime: Date;
     taskDeadline: Date;
+    duration: string;
 }
